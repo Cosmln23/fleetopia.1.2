@@ -1,492 +1,581 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { 
   BarChart3, 
   TrendingUp, 
+  TrendingDown,
   DollarSign, 
-  Fuel, 
-  Clock, 
   Target,
-  PieChart,
-  Activity,
+  Zap,
+  Brain,
+  Eye,
+  Download,
+  Calendar,
   Users,
   Truck,
-  Route,
-  Download,
-  Calendar
+  Fuel,
+  Clock,
+  Award,
+  AlertTriangle,
+  CheckCircle
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 interface AnalyticsData {
-  fleetPerformance: {
-    totalRevenue: number;
-    totalExpenses: number;
-    netProfit: number;
-    profitMargin: number;
-    fuelEfficiency: number;
-    averageSpeed: number;
-    onTimeDelivery: number;
+  performance: {
+    fleetEfficiency: number;
+    fuelSavings: number;
+    timeOptimization: number;
+    costReduction: number;
     customerSatisfaction: number;
   };
-  trends: {
-    revenueGrowth: number;
-    costReduction: number;
-    efficiencyImprovement: number;
-    safetyScore: number;
+  predictions: {
+    nextWeekSavings: number;
+    maintenanceAlerts: number;
+    routeOptimizations: number;
+    efficiency: number;
   };
-  breakdown: {
-    revenueByService: any[];
-    expensesByCategory: any[];
-    performanceByVehicle: any[];
-    utilizationByDriver: any[];
+  trends: {
+    dailyRequests: number[];
+    weeklyRevenue: number[];
+    monthlyGrowth: number;
+    userRetention: number;
+  };
+  insights: {
+    topAgent: string;
+    bestRoute: string;
+    peakHours: string;
+    recommendations: string[];
   };
 }
 
 export default function AnalyticsPage() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
-    fleetPerformance: {
-      totalRevenue: 0,
-      totalExpenses: 0,
-      netProfit: 0,
-      profitMargin: 0,
-      fuelEfficiency: 0,
-      averageSpeed: 0,
-      onTimeDelivery: 0,
-      customerSatisfaction: 0
+    performance: {
+      fleetEfficiency: 87.3,
+      fuelSavings: 31200,
+      timeOptimization: 23.4,
+      costReduction: 42.1,
+      customerSatisfaction: 4.8
+    },
+    predictions: {
+      nextWeekSavings: 8450,
+      maintenanceAlerts: 3,
+      routeOptimizations: 12,
+      efficiency: 91.2
     },
     trends: {
-      revenueGrowth: 0,
-      costReduction: 0,
-      efficiencyImprovement: 0,
-      safetyScore: 0
+      dailyRequests: [1200, 1350, 1180, 1420, 1560, 1340, 1280],
+      weeklyRevenue: [23400, 25600, 28100, 26800],
+      monthlyGrowth: 18.7,
+      userRetention: 94.2
     },
-    breakdown: {
-      revenueByService: [],
-      expensesByCategory: [],
-      performanceByVehicle: [],
-      utilizationByDriver: []
+    insights: {
+      topAgent: 'RouteOptimizer Pro',
+      bestRoute: 'Berlin → Munich',
+      peakHours: '08:00 - 10:00',
+      recommendations: [
+        'Optimize fuel consumption for Route #34',
+        'Schedule maintenance for Vehicle FL-234-AB',
+        'Update route planning for rush hour traffic',
+        'Implement driver training program'
+      ]
     }
   });
-  const [loading, setLoading] = useState(true);
-  const [selectedPeriod, setSelectedPeriod] = useState('monthly');
+
+  const [selectedTimeframe, setSelectedTimeframe] = useState('week');
 
   useEffect(() => {
-    fetchAnalyticsData();
-  }, [selectedPeriod]);
-
-  const fetchAnalyticsData = async () => {
-    try {
-      // Mock analytics data - in real implementation, this would come from APIs
-      const mockData: AnalyticsData = {
-        fleetPerformance: {
-          totalRevenue: 125000 + Math.random() * 25000,
-          totalExpenses: 89500 + Math.random() * 15000,
-          netProfit: 35500 + Math.random() * 10000,
-          profitMargin: 28.4 + Math.random() * 5,
-          fuelEfficiency: 7.2 + Math.random() * 1.5,
-          averageSpeed: 65 + Math.random() * 10,
-          onTimeDelivery: 94.5 + Math.random() * 5,
-          customerSatisfaction: 4.6 + Math.random() * 0.4
-        },
-        trends: {
-          revenueGrowth: 12.5 + Math.random() * 5,
-          costReduction: 8.3 + Math.random() * 3,
-          efficiencyImprovement: 15.2 + Math.random() * 5,
-          safetyScore: 96.8 + Math.random() * 3
-        },
-        breakdown: {
-          revenueByService: [
-            { name: 'Freight Delivery', value: 65000, percentage: 52 },
-            { name: 'Express Shipping', value: 35000, percentage: 28 },
-            { name: 'Local Transport', value: 25000, percentage: 20 }
-          ],
-          expensesByCategory: [
-            { name: 'Fuel', value: 35000, percentage: 39 },
-            { name: 'Maintenance', value: 22000, percentage: 25 },
-            { name: 'Insurance', value: 15000, percentage: 17 },
-            { name: 'Driver Wages', value: 12000, percentage: 13 },
-            { name: 'Other', value: 5500, percentage: 6 }
-          ],
-          performanceByVehicle: [
-            { id: 'VH001', efficiency: 95, revenue: 25000, trips: 45 },
-            { id: 'VH002', efficiency: 88, revenue: 22000, trips: 38 },
-            { id: 'VH003', efficiency: 92, revenue: 28000, trips: 52 },
-            { id: 'VH004', efficiency: 85, revenue: 19000, trips: 35 },
-            { id: 'VH005', efficiency: 90, revenue: 31000, trips: 48 }
-          ],
-          utilizationByDriver: [
-            { id: 'DR001', name: 'John Smith', hours: 168, efficiency: 94, rating: 4.8 },
-            { id: 'DR002', name: 'Sarah Johnson', hours: 156, efficiency: 91, rating: 4.6 },
-            { id: 'DR003', name: 'Mike Wilson', hours: 172, efficiency: 89, rating: 4.7 },
-            { id: 'DR004', name: 'Lisa Brown', hours: 164, efficiency: 93, rating: 4.9 },
-            { id: 'DR005', name: 'David Lee', hours: 148, efficiency: 87, rating: 4.5 }
-          ]
+    const interval = setInterval(() => {
+      setAnalyticsData(prev => ({
+        ...prev,
+        performance: {
+          ...prev.performance,
+          fleetEfficiency: prev.performance.fleetEfficiency + (Math.random() - 0.5) * 2,
+          customerSatisfaction: Math.min(5, Math.max(4, prev.performance.customerSatisfaction + (Math.random() - 0.5) * 0.2))
         }
-      };
+      }));
+    }, 5000);
 
-      setAnalyticsData(mockData);
-    } catch (error) {
-      console.error('Failed to fetch analytics data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    return () => clearInterval(interval);
+  }, []);
 
-  const MetricCard = ({ icon: Icon, title, value, unit, trend, color }: any) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Card className="relative overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
-          <Icon className={`h-4 w-4 ${color}`} />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {typeof value === 'number' ? value.toLocaleString() : value}
-            {unit && <span className="text-sm font-normal text-muted-foreground ml-1">{unit}</span>}
+  const MetricCard = ({ 
+    title, 
+    value, 
+    unit, 
+    trend, 
+    icon: Icon, 
+    color, 
+    description 
+  }: {
+    title: string;
+    value: number | string;
+    unit?: string;
+    trend?: number;
+    icon: any;
+    color: string;
+    description?: string;
+  }) => (
+    <Card className="bg-slate-800/50 border-slate-700">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className={`p-2 rounded-lg ${color}`}>
+            <Icon className="w-6 h-6 text-white" />
           </div>
-          {trend && (
-            <p className="text-xs text-muted-foreground">
-              <TrendingUp className="inline h-3 w-3 mr-1" />
-              {trend > 0 ? '+' : ''}{trend.toFixed(1)}% from last period
-            </p>
+          {trend !== undefined && (
+            <div className={`flex items-center space-x-1 ${trend >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              {trend >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+              <span className="text-sm font-medium">{Math.abs(trend)}%</span>
+            </div>
           )}
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-sm font-medium text-slate-400">{title}</h3>
+          <div className="flex items-baseline space-x-1">
+            <span className="text-3xl font-bold text-white">
+              {typeof value === 'number' ? value.toLocaleString() : value}
+            </span>
+            {unit && <span className="text-sm text-slate-400">{unit}</span>}
+          </div>
+          {description && (
+            <p className="text-xs text-slate-400">{description}</p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex items-center justify-between"
-      >
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Analytics & Insights</h1>
-          <p className="text-muted-foreground">
-            Comprehensive performance analytics and business intelligence
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Calendar className="h-4 w-4 mr-2" />
-            {selectedPeriod}
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
-      </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <div className="container mx-auto px-6 py-8">
+        
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+                Analytics & Insights
+              </h1>
+              <p className="text-slate-400 text-lg">
+                AI-powered analytics for fleet optimization and performance tracking
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant={selectedTimeframe === 'day' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedTimeframe('day')}
+                >
+                  Day
+                </Button>
+                <Button
+                  variant={selectedTimeframe === 'week' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedTimeframe('week')}
+                >
+                  Week
+                </Button>
+                <Button
+                  variant={selectedTimeframe === 'month' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedTimeframe('month')}
+                >
+                  Month
+                </Button>
+              </div>
+              <Button>
+                <Download className="w-4 h-4 mr-2" />
+                Export Report
+              </Button>
+            </div>
+          </div>
+        </motion.div>
 
-      {/* Key Performance Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          icon={DollarSign}
-          title="Total Revenue"
-          value={`$${Math.round(analyticsData.fleetPerformance.totalRevenue).toLocaleString()}`}
-          color="text-green-600"
-          trend={analyticsData.trends.revenueGrowth}
-        />
-        <MetricCard
-          icon={TrendingUp}
-          title="Net Profit"
-          value={`$${Math.round(analyticsData.fleetPerformance.netProfit).toLocaleString()}`}
-          color="text-blue-600"
-          trend={analyticsData.trends.revenueGrowth - 5}
-        />
-        <MetricCard
-          icon={Fuel}
-          title="Fuel Efficiency"
-          value={analyticsData.fleetPerformance.fuelEfficiency.toFixed(1)}
-          unit="L/100km"
-          color="text-orange-600"
-          trend={-analyticsData.trends.efficiencyImprovement}
-        />
-        <MetricCard
-          icon={Target}
-          title="On-time Delivery"
-          value={analyticsData.fleetPerformance.onTimeDelivery.toFixed(1)}
-          unit="%"
-          color="text-purple-600"
-          trend={2.3}
-        />
+        {/* Key Metrics */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        >
+          <MetricCard
+            title="Fleet Efficiency"
+            value={analyticsData.performance.fleetEfficiency.toFixed(1)}
+            unit="%"
+            trend={2.3}
+            icon={Target}
+            color="bg-blue-500"
+            description="Overall fleet performance"
+          />
+          <MetricCard
+            title="Cost Savings"
+            value={`€${(analyticsData.performance.fuelSavings / 1000).toFixed(0)}K`}
+            trend={12.1}
+            icon={DollarSign}
+            color="bg-green-500"
+            description="Total savings this month"
+          />
+          <MetricCard
+            title="Time Optimization"
+            value={analyticsData.performance.timeOptimization.toFixed(1)}
+            unit="%"
+            trend={5.7}
+            icon={Clock}
+            color="bg-purple-500"
+            description="Delivery time improvement"
+          />
+          <MetricCard
+            title="Customer Satisfaction"
+            value={analyticsData.performance.customerSatisfaction.toFixed(1)}
+            unit="/5.0"
+            trend={1.2}
+            icon={Award}
+            color="bg-yellow-500"
+            description="Average customer rating"
+          />
+        </motion.div>
+
+        {/* Main Analytics Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Tabs defaultValue="performance" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="performance">Performance</TabsTrigger>
+              <TabsTrigger value="predictions">AI Predictions</TabsTrigger>
+              <TabsTrigger value="insights">Smart Insights</TabsTrigger>
+              <TabsTrigger value="reports">Custom Reports</TabsTrigger>
+            </TabsList>
+
+            {/* Performance Tab */}
+            <TabsContent value="performance" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* Performance Overview */}
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-slate-200">
+                      <BarChart3 className="w-5 h-5 mr-2 text-blue-400" />
+                      Performance Overview
+                    </CardTitle>
+                    <CardDescription>Real-time fleet performance metrics</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-slate-400">Fleet Utilization</span>
+                          <span className="text-green-400 font-bold">85.9%</span>
+                        </div>
+                        <Progress value={85.9} className="h-3" />
+                      </div>
+                      
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-slate-400">Route Efficiency</span>
+                          <span className="text-blue-400 font-bold">92.3%</span>
+                        </div>
+                        <Progress value={92.3} className="h-3" />
+                      </div>
+                      
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-slate-400">Fuel Optimization</span>
+                          <span className="text-purple-400 font-bold">78.1%</span>
+                        </div>
+                        <Progress value={78.1} className="h-3" />
+                      </div>
+                      
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-slate-400">Driver Performance</span>
+                          <span className="text-yellow-400 font-bold">88.7%</span>
+                        </div>
+                        <Progress value={88.7} className="h-3" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Traffic & Usage */}
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-slate-200">
+                      <TrendingUp className="w-5 h-5 mr-2 text-green-400" />
+                      Traffic & Usage
+                    </CardTitle>
+                    <CardDescription>API requests and system usage patterns</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                          <p className="text-2xl font-bold text-blue-400">
+                            {analyticsData.trends.dailyRequests[analyticsData.trends.dailyRequests.length - 1].toLocaleString()}
+                          </p>
+                          <p className="text-sm text-slate-400">Requests Today</p>
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-green-400">{analyticsData.trends.monthlyGrowth}%</p>
+                          <p className="text-sm text-slate-400">Monthly Growth</p>
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-purple-400">{analyticsData.trends.userRetention}%</p>
+                          <p className="text-sm text-slate-400">User Retention</p>
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-yellow-400">142ms</p>
+                          <p className="text-sm text-slate-400">Avg Response</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Additional Performance Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-slate-200">
+                      <Truck className="w-5 h-5 mr-2 text-blue-400" />
+                      Vehicle Stats
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Active Vehicles</span>
+                        <span className="text-green-400 font-bold">134/156</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">In Maintenance</span>
+                        <span className="text-yellow-400 font-bold">12</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Available</span>
+                        <span className="text-blue-400 font-bold">10</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-slate-200">
+                      <Fuel className="w-5 h-5 mr-2 text-yellow-400" />
+                      Fuel Analytics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Avg Consumption</span>
+                        <span className="text-green-400 font-bold">12.4L/100km</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Monthly Savings</span>
+                        <span className="text-blue-400 font-bold">€{(analyticsData.performance.fuelSavings / 1000).toFixed(0)}K</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Efficiency Gain</span>
+                        <span className="text-purple-400 font-bold">+8.3%</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-slate-200">
+                      <Users className="w-5 h-5 mr-2 text-purple-400" />
+                      Driver Metrics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Active Drivers</span>
+                        <span className="text-green-400 font-bold">134</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Safety Score</span>
+                        <span className="text-blue-400 font-bold">94.7%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Avg Rating</span>
+                        <span className="text-purple-400 font-bold">4.6/5</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* AI Predictions Tab */}
+            <TabsContent value="predictions" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-slate-200">
+                      <Brain className="w-5 h-5 mr-2 text-purple-400" />
+                      AI Predictions
+                    </CardTitle>
+                    <CardDescription>Machine learning insights for next week</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center p-4 bg-slate-700/50 rounded-lg">
+                        <p className="text-2xl font-bold text-green-400">€{(analyticsData.predictions.nextWeekSavings / 1000).toFixed(1)}K</p>
+                        <p className="text-sm text-slate-400">Predicted Savings</p>
+                      </div>
+                      <div className="text-center p-4 bg-slate-700/50 rounded-lg">
+                        <p className="text-2xl font-bold text-blue-400">{analyticsData.predictions.efficiency}%</p>
+                        <p className="text-sm text-slate-400">Efficiency Target</p>
+                      </div>
+                      <div className="text-center p-4 bg-slate-700/50 rounded-lg">
+                        <p className="text-2xl font-bold text-yellow-400">{analyticsData.predictions.maintenanceAlerts}</p>
+                        <p className="text-sm text-slate-400">Maintenance Alerts</p>
+                      </div>
+                      <div className="text-center p-4 bg-slate-700/50 rounded-lg">
+                        <p className="text-2xl font-bold text-purple-400">{analyticsData.predictions.routeOptimizations}</p>
+                        <p className="text-sm text-slate-400">Route Optimizations</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-slate-200">
+                      <Calendar className="w-5 h-5 mr-2 text-blue-400" />
+                      Upcoming Events
+                    </CardTitle>
+                    <CardDescription>Predicted maintenance and optimization opportunities</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-400" />
+                        <div>
+                          <p className="text-sm font-medium text-green-400">Route Optimization Available</p>
+                          <p className="text-xs text-slate-400">3 routes can be improved by 15%</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                        <AlertTriangle className="w-5 h-5 text-yellow-400" />
+                        <div>
+                          <p className="text-sm font-medium text-yellow-400">Maintenance Due</p>
+                          <p className="text-xs text-slate-400">Vehicle FL-234-AB in 3 days</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                        <Zap className="w-5 h-5 text-blue-400" />
+                        <div>
+                          <p className="text-sm font-medium text-blue-400">Fuel Price Drop</p>
+                          <p className="text-xs text-slate-400">Expected 8% decrease next week</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Smart Insights Tab */}
+            <TabsContent value="insights" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-slate-200">Top Performers</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="text-sm text-slate-400">Best AI Agent</p>
+                      <p className="text-lg font-semibold text-green-400">{analyticsData.insights.topAgent}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">Most Efficient Route</p>
+                      <p className="text-lg font-semibold text-blue-400">{analyticsData.insights.bestRoute}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">Peak Activity</p>
+                      <p className="text-lg font-semibold text-purple-400">{analyticsData.insights.peakHours}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700 lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-slate-200">
+                      <Brain className="w-5 h-5 mr-2 text-purple-400" />
+                      AI Recommendations
+                    </CardTitle>
+                    <CardDescription>Smart suggestions to improve fleet performance</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {analyticsData.insights.recommendations.map((recommendation, index) => (
+                        <div key={index} className="flex items-start space-x-3 p-3 bg-slate-700/50 rounded-lg">
+                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="text-sm text-white">{recommendation}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Reports Tab */}
+            <TabsContent value="reports">
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-slate-200">Custom Reports</CardTitle>
+                  <CardDescription>Generate detailed reports for stakeholders</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-16">
+                    <BarChart3 className="w-16 h-16 mx-auto text-slate-600 mb-4" />
+                    <h3 className="text-xl font-semibold text-slate-300 mb-2">Advanced Reporting Suite</h3>
+                    <p className="text-slate-400 mb-6">
+                      Create custom reports with advanced filtering and export options
+                    </p>
+                    <div className="flex justify-center space-x-4">
+                      <Button>
+                        <Download className="w-4 h-4 mr-2" />
+                        Generate Report
+                      </Button>
+                      <Button variant="outline">
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Templates
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </motion.div>
       </div>
-
-      {/* Detailed Analytics */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="financial">Financial</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="utilization">Utilization</TabsTrigger>
-          <TabsTrigger value="trends">Trends</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Revenue Breakdown */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <PieChart className="h-5 w-5" />
-                  Revenue by Service
-                </CardTitle>
-                <CardDescription>Revenue distribution across service types</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {analyticsData.breakdown.revenueByService.map((service, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`h-3 w-3 rounded-full bg-blue-${(index + 1) * 200}`} />
-                        <span className="text-sm font-medium">{service.name}</span>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-bold">${service.value.toLocaleString()}</div>
-                        <div className="text-xs text-muted-foreground">{service.percentage}%</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Expense Breakdown */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Expenses by Category
-                </CardTitle>
-                <CardDescription>Cost breakdown by expense category</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {analyticsData.breakdown.expensesByCategory.map((expense, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`h-3 w-3 rounded-full bg-red-${(index + 1) * 100 + 300}`} />
-                        <span className="text-sm font-medium">{expense.name}</span>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-bold">${expense.value.toLocaleString()}</div>
-                        <div className="text-xs text-muted-foreground">{expense.percentage}%</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Key Trends */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Key Performance Trends
-              </CardTitle>
-              <CardDescription>Month-over-month performance indicators</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 border rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">
-                    +{analyticsData.trends.revenueGrowth.toFixed(1)}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Revenue Growth</div>
-                </div>
-                <div className="text-center p-4 border rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">
-                    -{analyticsData.trends.costReduction.toFixed(1)}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Cost Reduction</div>
-                </div>
-                <div className="text-center p-4 border rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">
-                    +{analyticsData.trends.efficiencyImprovement.toFixed(1)}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Efficiency Gain</div>
-                </div>
-                <div className="text-center p-4 border rounded-lg">
-                  <div className="text-2xl font-bold text-emerald-600">
-                    {analyticsData.trends.safetyScore.toFixed(1)}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Safety Score</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="performance" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Truck className="h-5 w-5" />
-                Vehicle Performance
-              </CardTitle>
-              <CardDescription>Individual vehicle performance metrics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {analyticsData.breakdown.performanceByVehicle.map((vehicle, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <Truck className="h-8 w-8 text-blue-600" />
-                      <div>
-                        <div className="font-medium">{vehicle.id}</div>
-                        <div className="text-sm text-muted-foreground">{vehicle.trips} trips completed</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-center">
-                        <div className="text-lg font-bold">{vehicle.efficiency}%</div>
-                        <div className="text-xs text-muted-foreground">Efficiency</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-lg font-bold">${vehicle.revenue.toLocaleString()}</div>
-                        <div className="text-xs text-muted-foreground">Revenue</div>
-                      </div>
-                      <Badge variant={vehicle.efficiency > 90 ? 'default' : 'secondary'}>
-                        {vehicle.efficiency > 90 ? 'Excellent' : 'Good'}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="utilization" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Driver Utilization
-              </CardTitle>
-              <CardDescription>Driver performance and utilization metrics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {analyticsData.breakdown.utilizationByDriver.map((driver, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <Users className="h-8 w-8 text-green-600" />
-                      <div>
-                        <div className="font-medium">{driver.name}</div>
-                        <div className="text-sm text-muted-foreground">ID: {driver.id}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-center">
-                        <div className="text-lg font-bold">{driver.hours}h</div>
-                        <div className="text-xs text-muted-foreground">Hours</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-lg font-bold">{driver.efficiency}%</div>
-                        <div className="text-xs text-muted-foreground">Efficiency</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-lg font-bold">{driver.rating}</div>
-                        <div className="text-xs text-muted-foreground">Rating</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="financial" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profit Margin</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-green-600">
-                  {analyticsData.fleetPerformance.profitMargin.toFixed(1)}%
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Above industry average of 25%
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Cost per Mile</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-blue-600">
-                  $1.85
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  -12% from last month
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue per Vehicle</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-purple-600">
-                  $25,000
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  +8% from last month
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="trends" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Performance Trends
-              </CardTitle>
-              <CardDescription>Historical performance data and projections</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <BarChart3 className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                <p>Advanced trend analysis charts coming soon...</p>
-                <p className="text-sm">Integration with charting library in progress</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }

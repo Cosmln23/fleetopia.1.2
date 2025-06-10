@@ -1,7 +1,7 @@
-
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,395 +9,589 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { 
   Zap, 
-  Truck, 
-  Map, 
-  Cloud, 
-  Navigation, 
-  Mail, 
-  Fuel, 
-  Shield, 
-  Wrench, 
-  DollarSign,
-  Activity,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Settings,
+  Link as LinkIcon, 
+  CheckCircle, 
+  AlertTriangle, 
+  Settings, 
   Plus,
-  RefreshCw
+  Eye,
+  Trash2,
+  TestTube,
+  Globe,
+  Clock,
+  Shield,
+  Activity,
+  Database,
+  Cloud,
+  Smartphone
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { APIIntegrationForm } from '@/components/api-integration-form';
+import { AgentAPIConnector } from '@/components/agent-api-connector';
 
-interface ExtensionCapability {
-  providers: string[];
-  features: string[];
-  status: string;
-  integrations: number;
+interface APIIntegration {
+  id: string;
+  name: string;
+  description: string;
+  provider: string;
+  type: 'REST' | 'GraphQL' | 'WebSocket' | 'SOAP';
+  status: 'connected' | 'disconnected' | 'error' | 'testing';
+  health: number;
+  endpoint: string;
+  lastTested: string;
+  requestsToday: number;
+  responseTime: number;
+  connectedAgents: number;
+  category: string;
+  requiresAuth: boolean;
 }
 
-interface HealthCheck {
-  service: string;
-  status: 'healthy' | 'degraded' | 'down';
-  latency: number;
-  lastCheck: Date;
-  errorRate: number;
-  integrations: number;
-  providers: number;
-}
-
-interface OverallHealth {
-  totalExtensions: number;
-  activeExtensions: number;
-  degradedExtensions: number;
-  downExtensions: number;
-  averageLatency: number;
-  averageErrorRate: number;
-  totalIntegrations: number;
-  lastUpdate: Date;
-}
-
-export default function ApiIntegrationsPage() {
-  const [extensionCapabilities, setExtensionCapabilities] = useState<Record<string, ExtensionCapability>>({});
-  const [healthChecks, setHealthChecks] = useState<HealthCheck[]>([]);
-  const [overallHealth, setOverallHealth] = useState<OverallHealth | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    fetchExtensionsData();
-    
-    // Set up auto-refresh every 30 seconds
-    const interval = setInterval(() => {
-      fetchExtensionsData(true);
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchExtensionsData = async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    
-    try {
-      const response = await fetch('/api/extensions');
-      const data = await response.json();
-      
-      if (data.success) {
-        setExtensionCapabilities(data.data.extensionCapabilities);
-        setHealthChecks(data.data.healthChecks);
-        setOverallHealth(data.data.overallHealth);
-      }
-    } catch (error) {
-      console.error('Failed to fetch extensions data:', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+export default function APIIntegrationsPage() {
+  const [integrations, setIntegrations] = useState<APIIntegration[]>([
+    {
+      id: '1',
+      name: 'Google Maps API',
+      description: 'Real-time mapping and routing services',
+      provider: 'Google',
+      type: 'REST',
+      status: 'connected',
+      health: 98,
+      endpoint: 'https://maps.googleapis.com/maps/api/',
+      lastTested: '2 minutes ago',
+      requestsToday: 1547,
+      responseTime: 120,
+      connectedAgents: 3,
+      category: 'Navigation',
+      requiresAuth: true
+    },
+    {
+      id: '2',
+      name: 'Weather Service API',
+      description: 'Weather data and forecasting',
+      provider: 'OpenWeather',
+      type: 'REST',
+      status: 'connected',
+      health: 95,
+      endpoint: 'https://api.openweathermap.org/data/',
+      lastTested: '5 minutes ago',
+      requestsToday: 234,
+      responseTime: 89,
+      connectedAgents: 2,
+      category: 'Weather',
+      requiresAuth: true
+    },
+    {
+      id: '3',
+      name: 'Fuel Price API',
+      description: 'Real-time fuel pricing data',
+      provider: 'FuelPrices.io',
+      type: 'REST',
+      status: 'connected',
+      health: 92,
+      endpoint: 'https://api.fuelprices.io/v1/',
+      lastTested: '1 hour ago',
+      requestsToday: 89,
+      responseTime: 156,
+      connectedAgents: 1,
+      category: 'Pricing',
+      requiresAuth: true
+    },
+    {
+      id: '4',
+      name: 'Payment Gateway',
+      description: 'Secure payment processing',
+      provider: 'Stripe',
+      type: 'REST',
+      status: 'error',
+      health: 45,
+      endpoint: 'https://api.stripe.com/v1/',
+      lastTested: '3 hours ago',
+      requestsToday: 12,
+      responseTime: 2340,
+      connectedAgents: 0,
+      category: 'Payment',
+      requiresAuth: true
+    },
+    {
+      id: '5',
+      name: 'SMS Gateway',
+      description: 'Customer notification service',
+      provider: 'Twilio',
+      type: 'REST',
+      status: 'disconnected',
+      health: 0,
+      endpoint: 'https://api.twilio.com/2010-04-01/',
+      lastTested: 'Never',
+      requestsToday: 0,
+      responseTime: 0,
+      connectedAgents: 0,
+      category: 'Communication',
+      requiresAuth: true
     }
-  };
+  ]);
 
-  const getExtensionIcon = (type: string) => {
-    const icons: Record<string, any> = {
-      freight_matching: Truck,
-      gps_telematics: Navigation,
-      mapping: Map,
-      weather: Cloud,
-      traffic: Activity,
-      communication: Mail,
-      fuel: Fuel,
-      compliance: Shield,
-      maintenance: Wrench,
-      financial: DollarSign
-    };
-    return icons[type] || Zap;
-  };
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showConnector, setShowConnector] = useState(false);
+  const [selectedTab, setSelectedTab] = useState('overview');
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'healthy': return 'text-green-600';
-      case 'degraded': return 'text-yellow-600';
-      case 'down': return 'text-red-600';
-      default: return 'text-gray-600';
+      case 'connected': return 'text-green-400 border-green-400';
+      case 'disconnected': return 'text-gray-400 border-gray-400';
+      case 'error': return 'text-red-400 border-red-400';
+      case 'testing': return 'text-yellow-400 border-yellow-400';
+      default: return 'text-gray-400 border-gray-400';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'healthy': return CheckCircle;
-      case 'degraded': return AlertCircle;
-      case 'down': return AlertCircle;
-      default: return Clock;
+      case 'connected': return <CheckCircle className="w-4 h-4" />;
+      case 'error': return <AlertTriangle className="w-4 h-4" />;
+      case 'testing': return <TestTube className="w-4 h-4" />;
+      default: return <AlertTriangle className="w-4 h-4" />;
     }
   };
 
-  const ExtensionCard = ({ type, capability }: { type: string, capability: ExtensionCapability }) => {
-    const Icon = getExtensionIcon(type);
-    const healthCheck = healthChecks.find(h => h.service === type);
-    const StatusIcon = healthCheck ? getStatusIcon(healthCheck.status) : Clock;
-    
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        whileHover={{ scale: 1.02 }}
-      >
-        <Card className="h-full hover:shadow-lg transition-all duration-300">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Icon className="h-5 w-5 text-primary" />
-                <CardTitle className="text-lg capitalize">
-                  {type.replace('_', ' ')}
-                </CardTitle>
-              </div>
-              <div className="flex items-center gap-1">
-                <StatusIcon className={`h-4 w-4 ${healthCheck ? getStatusColor(healthCheck.status) : 'text-gray-400'}`} />
-                <Badge variant={capability.status === 'active' ? 'default' : 'secondary'}>
-                  {capability.status}
-                </Badge>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Providers</span>
-                <span>{capability.providers.length}</span>
-              </div>
-              <div className="flex flex-wrap gap-1">
-                {capability.providers.slice(0, 3).map((provider) => (
-                  <Badge key={provider} variant="outline" className="text-xs">
-                    {provider}
-                  </Badge>
-                ))}
-                {capability.providers.length > 3 && (
-                  <Badge variant="outline" className="text-xs">
-                    +{capability.providers.length - 3}
-                  </Badge>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Features</span>
-                <span>{capability.features.length}</span>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {capability.features.slice(0, 2).join(', ')}
-                {capability.features.length > 2 && '...'}
-              </div>
-            </div>
-
-            {healthCheck && (
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Latency</span>
-                  <span>{healthCheck.latency}ms</span>
-                </div>
-                <Progress value={Math.max(0, 100 - healthCheck.latency)} className="h-2" />
-                
-                <div className="flex justify-between text-sm">
-                  <span>Error Rate</span>
-                  <span>{(healthCheck.errorRate * 100).toFixed(1)}%</span>
-                </div>
-                <Progress value={Math.max(0, 100 - (healthCheck.errorRate * 100))} className="h-2" />
-              </div>
-            )}
-
-            <div className="flex justify-between items-center pt-2">
-              <span className="text-sm text-muted-foreground">
-                {capability.integrations} active
-              </span>
-              <Button size="sm" variant="outline">
-                <Settings className="h-3 w-3 mr-1" />
-                Configure
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    );
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'Navigation': return <Globe className="w-5 h-5" />;
+      case 'Weather': return <Cloud className="w-5 h-5" />;
+      case 'Pricing': return <Database className="w-5 h-5" />;
+      case 'Payment': return <Shield className="w-5 h-5" />;
+      case 'Communication': return <Smartphone className="w-5 h-5" />;
+      default: return <Zap className="w-5 h-5" />;
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  const totalIntegrations = integrations.length;
+  const connectedIntegrations = integrations.filter(i => i.status === 'connected').length;
+  const totalRequests = integrations.reduce((sum, i) => sum + i.requestsToday, 0);
+  const avgHealth = integrations.reduce((sum, i) => sum + i.health, 0) / integrations.length;
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex items-center justify-between"
-      >
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">API Integrations</h1>
-          <p className="text-muted-foreground">
-            Monitor and manage all external API integrations for your transport platform
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => fetchExtensionsData(true)}
-            disabled={refreshing}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Integration
-          </Button>
-        </div>
-      </motion.div>
-
-      {/* Overall Health Dashboard */}
-      {overallHealth && (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <div className="container mx-auto px-6 py-8">
+        
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-8"
         >
-          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                System Health Overview
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {overallHealth.activeExtensions}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Healthy</div>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+                API Integrations
+              </h1>
+              <p className="text-slate-400 text-lg">
+                Connect your APIs and let clients bring their own services
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Badge variant="outline" className="text-green-400 border-green-400">
+                <LinkIcon className="w-4 h-4 mr-2" />
+                {connectedIntegrations}/{totalIntegrations} Connected
+              </Badge>
+              <Button onClick={() => setShowAddForm(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Integration
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Stats Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
+        >
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Total APIs</p>
+                  <p className="text-2xl font-bold text-white">{totalIntegrations}</p>
+                  <p className="text-xs text-blue-400">5 categories</p>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-yellow-600">
-                    {overallHealth.degradedExtensions}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Degraded</div>
+                <Zap className="w-8 h-8 text-blue-400" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Connected</p>
+                  <p className="text-2xl font-bold text-green-400">{connectedIntegrations}</p>
+                  <p className="text-xs text-green-400">{((connectedIntegrations / totalIntegrations) * 100).toFixed(0)}% uptime</p>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-red-600">
-                    {overallHealth.downExtensions}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Down</div>
+                <CheckCircle className="w-8 h-8 text-green-400" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Requests Today</p>
+                  <p className="text-2xl font-bold text-purple-400">{totalRequests.toLocaleString()}</p>
+                  <p className="text-xs text-green-400">+12% from yesterday</p>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {overallHealth.averageLatency}ms
-                  </div>
-                  <div className="text-xs text-muted-foreground">Avg Latency</div>
+                <Activity className="w-8 h-8 text-purple-400" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Avg Health</p>
+                  <p className="text-2xl font-bold text-yellow-400">{avgHealth.toFixed(0)}%</p>
+                  <p className="text-xs text-green-400">All systems operational</p>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">
-                    {(overallHealth.averageErrorRate * 100).toFixed(1)}%
-                  </div>
-                  <div className="text-xs text-muted-foreground">Error Rate</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-indigo-600">
-                    {overallHealth.totalIntegrations}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Integrations</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-600">
-                    {Math.round((overallHealth.activeExtensions / overallHealth.totalExtensions) * 100)}%
-                  </div>
-                  <div className="text-xs text-muted-foreground">Uptime</div>
-                </div>
+                <Shield className="w-8 h-8 text-yellow-400" />
               </div>
             </CardContent>
           </Card>
         </motion.div>
-      )}
 
-      {/* Extensions Grid */}
-      <Tabs defaultValue="all" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="all">All Extensions</TabsTrigger>
-          <TabsTrigger value="transport">Transport</TabsTrigger>
-          <TabsTrigger value="communication">Communication</TabsTrigger>
-          <TabsTrigger value="business">Business</TabsTrigger>
-          <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
-        </TabsList>
+        {/* Main Dashboard */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="overview">API Overview</TabsTrigger>
+              <TabsTrigger value="connections">Agent Connections</TabsTrigger>
+              <TabsTrigger value="testing">API Testing</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="all" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Object.entries(extensionCapabilities).map(([type, capability]) => (
-              <ExtensionCard key={type} type={type} capability={capability} />
-            ))}
-          </div>
-        </TabsContent>
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* API List */}
+                <div className="lg:col-span-2">
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardHeader>
+                      <CardTitle className="text-slate-200">Connected APIs</CardTitle>
+                      <CardDescription>Manage your external API integrations</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {integrations.map((api) => (
+                        <motion.div
+                          key={api.id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="p-4 bg-slate-700/50 rounded-lg"
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center space-x-3">
+                              <div className="flex items-center justify-center w-10 h-10 bg-slate-600 rounded-lg">
+                                {getCategoryIcon(api.category)}
+                              </div>
+                              <div>
+                                <p className="font-medium text-white">{api.name}</p>
+                                <p className="text-sm text-slate-400">{api.description}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant="outline" className={`text-xs ${getStatusColor(api.status)}`}>
+                                {getStatusIcon(api.status)}
+                                <span className="ml-1 capitalize">{api.status}</span>
+                              </Badge>
+                              <Button variant="outline" size="sm">
+                                <Settings className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <p className="text-slate-400">Health</p>
+                              <div className="flex items-center space-x-2">
+                                <Progress value={api.health} className="h-2 flex-1" />
+                                <span className="text-white font-medium">{api.health}%</span>
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-slate-400">Requests Today</p>
+                              <p className="text-white font-medium">{api.requestsToday.toLocaleString()}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400">Response Time</p>
+                              <p className="text-white font-medium">{api.responseTime}ms</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400">Connected Agents</p>
+                              <p className="text-white font-medium">{api.connectedAgents}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
+                            <span>{api.provider} • {api.type}</span>
+                            <span>Last tested: {api.lastTested}</span>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
 
-        <TabsContent value="transport" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(extensionCapabilities)
-              .filter(([type]) => ['freight_matching', 'gps_telematics', 'mapping', 'traffic'].includes(type))
-              .map(([type, capability]) => (
-                <ExtensionCard key={type} type={type} capability={capability} />
-              ))}
-          </div>
-        </TabsContent>
+                {/* Side Panel */}
+                <div className="space-y-6">
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardHeader>
+                      <CardTitle className="text-slate-200">Quick Actions</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <Button 
+                        className="w-full justify-start"
+                        onClick={() => setShowAddForm(true)}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add New API
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={() => setShowConnector(true)}
+                      >
+                        <LinkIcon className="w-4 h-4 mr-2" />
+                        Connect to Agent
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start">
+                        <TestTube className="w-4 h-4 mr-2" />
+                        Test All APIs
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start">
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Logs
+                      </Button>
+                    </CardContent>
+                  </Card>
 
-        <TabsContent value="communication" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(extensionCapabilities)
-              .filter(([type]) => ['communication', 'weather'].includes(type))
-              .map(([type, capability]) => (
-                <ExtensionCard key={type} type={type} capability={capability} />
-              ))}
-          </div>
-        </TabsContent>
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardHeader>
+                      <CardTitle className="flex items-center text-slate-200">
+                        <Activity className="w-5 h-5 mr-2 text-blue-400" />
+                        System Health
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">API Gateway</span>
+                        <span className="text-green-400 font-bold">Online</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Load Balancer</span>
+                        <span className="text-green-400 font-bold">Healthy</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Rate Limiting</span>
+                        <span className="text-blue-400 font-bold">Active</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Security</span>
+                        <span className="text-green-400 font-bold">Secured</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
 
-        <TabsContent value="business" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(extensionCapabilities)
-              .filter(([type]) => ['financial', 'compliance', 'fuel'].includes(type))
-              .map(([type, capability]) => (
-                <ExtensionCard key={type} type={type} capability={capability} />
-              ))}
-          </div>
-        </TabsContent>
+            {/* Connections Tab */}
+            <TabsContent value="connections">
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-slate-200">Agent-API Connections</CardTitle>
+                  <CardDescription>Connect AI agents with your APIs for seamless integration</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-16">
+                    <LinkIcon className="w-16 h-16 mx-auto text-slate-600 mb-4" />
+                    <h3 className="text-xl font-semibold text-slate-300 mb-2">Agent Connection Hub</h3>
+                    <p className="text-slate-400 mb-6">
+                      Connect your AI agents with APIs to enable intelligent automation
+                    </p>
+                    <Button onClick={() => setShowConnector(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create New Connection
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-        <TabsContent value="monitoring" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(extensionCapabilities)
-              .filter(([type]) => ['maintenance', 'gps_telematics'].includes(type))
-              .map(([type, capability]) => (
-                <ExtensionCard key={type} type={type} capability={capability} />
-              ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+            {/* Testing Tab */}
+            <TabsContent value="testing">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-slate-200">API Testing Suite</CardTitle>
+                    <CardDescription>Test API endpoints and monitor performance</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      {integrations.filter(api => api.status === 'connected').map((api) => (
+                        <div key={api.id} className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            {getCategoryIcon(api.category)}
+                            <span className="text-white">{api.name}</span>
+                          </div>
+                          <Button variant="outline" size="sm">
+                            <TestTube className="w-4 h-4 mr-2" />
+                            Test Now
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
 
-      {/* Real-time Status */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="fixed bottom-4 left-4 bg-background border rounded-lg shadow-lg p-4 max-w-xs"
-      >
-        <div className="flex items-center gap-2 mb-2">
-          <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-sm font-medium">Live Monitoring</span>
-        </div>
-        <div className="text-xs text-muted-foreground space-y-1">
-          <div>API Calls: {Math.floor(Math.random() * 1000) + 500}/min</div>
-          <div>Response Time: {Math.floor(Math.random() * 50) + 20}ms</div>
-          <div>Success Rate: {(99.5 + Math.random() * 0.5).toFixed(1)}%</div>
-        </div>
-      </motion.div>
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-slate-200">Test Results</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <TestTube className="w-12 h-12 mx-auto text-slate-600 mb-4" />
+                      <p className="text-slate-400">Run API tests to see results here</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Analytics Tab */}
+            <TabsContent value="analytics">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-slate-200">Usage Analytics</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4 text-center">
+                      <div>
+                        <p className="text-2xl font-bold text-blue-400">{totalRequests.toLocaleString()}</p>
+                        <p className="text-sm text-slate-400">Total Requests</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-green-400">{connectedIntegrations}</p>
+                        <p className="text-sm text-slate-400">Active APIs</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-purple-400">142ms</p>
+                        <p className="text-sm text-slate-400">Avg Response</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-yellow-400">99.2%</p>
+                        <p className="text-sm text-slate-400">Uptime</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-slate-200">Performance Metrics</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">System Load</span>
+                      <span className="text-green-400 font-bold">23%</span>
+                    </div>
+                    <Progress value={23} className="h-3" />
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Error Rate</span>
+                      <span className="text-green-400 font-bold">0.8%</span>
+                    </div>
+                    <Progress value={0.8} className="h-3" />
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Throughput</span>
+                      <span className="text-blue-400 font-bold">1.2K req/min</span>
+                    </div>
+                    <Progress value={85} className="h-3" />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </motion.div>
+
+        {/* Add API Form Modal */}
+        {showAddForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          >
+            <div className="bg-slate-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-white">Add New API Integration</h2>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowAddForm(false)}
+                  >
+                    <span>✕</span>
+                  </Button>
+                </div>
+                <APIIntegrationForm
+                  onSubmit={(data) => {
+                    console.log('New API integration:', data);
+                    setShowAddForm(false);
+                  }}
+                  onCancel={() => setShowAddForm(false)}
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Agent Connector Modal */}
+        {showConnector && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          >
+            <div className="bg-slate-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-white">Connect Agent to API</h2>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowConnector(false)}
+                  >
+                    <span>✕</span>
+                  </Button>
+                </div>
+                <AgentAPIConnector
+                  onConnect={(data) => {
+                    console.log('Agent connected to API:', data);
+                    setShowConnector(false);
+                  }}
+                  onCancel={() => setShowConnector(false)}
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }

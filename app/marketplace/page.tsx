@@ -1,318 +1,444 @@
-
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Store, Download, Star, TrendingUp, Users, Euro, Bot, Plus, Search } from 'lucide-react';
-import MetricCard from '@/components/metric-card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Bot, 
+  Search, 
+  Star, 
+  Filter, 
+  TrendingUp, 
+  ShoppingCart,
+  Download,
+  Zap,
+  Shield,
+  Clock,
+  Users
+} from 'lucide-react';
+import { AgentCardEnhanced } from '@/components/marketplace/agent-card-enhanced';
+import { RouteOptimizerModal } from '@/components/marketplace/route-optimizer-modal';
 
-interface MarketplaceAgent {
-  id: string;
-  name: string;
-  type: string;
-  description: string;
-  price: number;
-  rating: number;
-  downloads: number;
-  revenue: number;
-  owner: string;
-  version: string;
-  capabilities: string[];
-}
+  const featuredAgents = [
+    {
+      id: 'route-optimizer-pro',
+      name: 'RouteOptimizer Pro',
+      description: 'AI-powered route optimization with ML learning',
+      version: '3.0.0',
+      category: 'Optimization',
+      capabilities: ['ML route planning', 'Neural predictions', 'Real-time learning'],
+      marketplace: true,
+      price: 299,
+      rating: 4.9,
+      downloads: 1847,
+      performance: {
+        accuracy: 90,
+        speed: 95,
+        reliability: 94,
+        security: 92
+      },
+      status: 'active' as const,
+      isTemplate: false,
+      requiresAPI: ['Google Maps', 'Traffic Data'],
+      owner: {
+        name: 'FleetAI Labs',
+        verified: true
+      },
+      lastUpdated: new Date(),
+      validationScore: 95.2,
+      mlEnhanced: true,
+      features: [
+        'ML-enhanced route planning',
+        'Real-time traffic optimization', 
+        'Neural network predictions',
+        'Continuous learning',
+        '5-40% cost savings',
+        'TensorFlow.js integration'
+      ]
+    },
+  {
+    id: '2',
+    name: 'FuelMaster AI',
+    description: 'Intelligent fuel consumption monitoring and optimization',
+    version: '1.8.3',
+    category: 'Analytics',
+    capabilities: ['Fuel analytics', 'Predictive maintenance', 'Cost tracking'],
+    marketplace: true,
+    price: 199,
+    rating: 4.8,
+    downloads: 834,
+    performance: {
+      accuracy: 91,
+      speed: 88,
+      reliability: 94,
+      security: 92
+    },
+    status: 'active' as const,
+    isTemplate: false,
+    requiresAPI: ['Fuel Price API', 'Vehicle Diagnostics'],
+    owner: {
+      name: 'FuelTech Solutions',
+      verified: true
+    },
+    lastUpdated: new Date(),
+    validationScore: 91.7
+  },
+  {
+    id: '3',
+    name: 'DeliveryPredictor',
+    description: 'ML-powered delivery time predictions and scheduling',
+    version: '1.5.2',
+    category: 'Prediction',
+    capabilities: ['Time prediction', 'Smart scheduling', 'Customer notifications'],
+    marketplace: true,
+    price: 149,
+    rating: 4.7,
+    downloads: 567,
+    performance: {
+      accuracy: 88,
+      speed: 85,
+      reliability: 91,
+      security: 87
+    },
+    status: 'active' as const,
+    isTemplate: false,
+    requiresAPI: ['Weather API', 'Calendar Integration'],
+    owner: {
+      name: 'PredictAI Corp',
+      verified: true
+    },
+    lastUpdated: new Date(),
+    validationScore: 88.9
+  },
+  {
+    id: '4',
+    name: 'FleetGuardian',
+    description: 'Comprehensive fleet security and monitoring solution',
+    version: '3.0.1',
+    category: 'Security',
+    capabilities: ['Real-time monitoring', 'Theft prevention', 'Driver behavior'],
+    marketplace: true,
+    price: 399,
+    rating: 4.9,
+    downloads: 923,
+    performance: {
+      accuracy: 96,
+      speed: 93,
+      reliability: 98,
+      security: 99
+    },
+    status: 'active' as const,
+    isTemplate: false,
+    requiresAPI: ['GPS Tracking', 'Security Cameras'],
+    owner: {
+      name: 'SecureFleet Inc',
+      verified: true
+    },
+    lastUpdated: new Date(),
+    validationScore: 96.1
+  },
+  {
+    id: '5',
+    name: 'MaintenanceGenie',
+    description: 'Predictive maintenance scheduling and cost optimization',
+    version: '2.2.0',
+    category: 'Maintenance',
+    capabilities: ['Predictive alerts', 'Cost optimization', 'Supplier network'],
+    marketplace: true,
+    price: 249,
+    rating: 4.6,
+    downloads: 445,
+    performance: {
+      accuracy: 87,
+      speed: 82,
+      reliability: 89,
+      security: 91
+    },
+    status: 'active' as const,
+    isTemplate: false,
+    requiresAPI: ['Vehicle Sensors', 'Parts Database'],
+    owner: {
+      name: 'MaintenanceAI Ltd',
+      verified: true
+    },
+    lastUpdated: new Date(),
+    validationScore: 87.3
+  },
+  {
+    id: '6',
+    name: 'CustomerConnect',
+    description: 'AI-powered customer communication and satisfaction tracking',
+    version: '1.9.5',
+    category: 'Customer Service',
+    capabilities: ['Auto-notifications', 'Satisfaction tracking', 'Support automation'],
+    marketplace: true,
+    price: 179,
+    rating: 4.8,
+    downloads: 678,
+    performance: {
+      accuracy: 92,
+      speed: 89,
+      reliability: 95,
+      security: 88
+    },
+    status: 'active' as const,
+    isTemplate: false,
+    requiresAPI: ['SMS Gateway', 'Email Service'],
+    owner: {
+      name: 'CustomerCare AI',
+      verified: true
+    },
+    lastUpdated: new Date(),
+    validationScore: 92.4
+  }
+];
 
 export default function MarketplacePage() {
-  const [agents, setAgents] = useState<MarketplaceAgent[]>([
-    {
-      id: 'mp-001',
-      name: 'Fuel Optimizer Pro',
-      type: 'fuel-optimizer',
-      description: 'Advanced AI agent that optimizes fuel consumption across your fleet using real-time data analysis and predictive algorithms.',
-      price: 99,
-      rating: 4.8,
-      downloads: 1247,
-      revenue: 8420,
-      owner: 'fleetopia-core',
-      version: '2.1.0',
-      capabilities: ['Real-time monitoring', 'Predictive analysis', 'Route optimization', 'Driver behavior analysis']
-    },
-    {
-      id: 'mp-002',
-      name: 'Route Genius Elite',
-      type: 'route-genius',
-      description: 'Intelligent routing system that calculates optimal paths considering traffic, weather, and delivery constraints.',
-      price: 149,
-      rating: 4.9,
-      downloads: 892,
-      revenue: 12650,
-      owner: 'fleetopia-core',
-      version: '1.8.3',
-      capabilities: ['Dynamic routing', 'Traffic analysis', 'Multi-stop optimization', 'Real-time rerouting']
-    },
-    {
-      id: 'mp-003',
-      name: 'Weather Prophet',
-      type: 'weather-prophet',
-      description: 'Weather prediction and fleet adaptation system that helps optimize operations based on weather conditions.',
-      price: 79,
-      rating: 4.6,
-      downloads: 634,
-      revenue: 5230,
-      owner: 'fleetopia-core',
-      version: '1.5.2',
-      capabilities: ['Weather forecasting', 'Risk assessment', 'Route adaptation', 'Maintenance scheduling']
-    },
-    {
-      id: 'mp-004',
-      name: 'Cost Analyzer',
-      type: 'cost-analyzer',
-      description: 'Comprehensive cost analysis and optimization agent for fleet operations and budget management.',
-      price: 129,
-      rating: 4.7,
-      downloads: 456,
-      revenue: 7890,
-      owner: 'third-party-dev',
-      version: '1.2.1',
-      capabilities: ['Cost tracking', 'Budget optimization', 'ROI analysis', 'Expense forecasting']
-    }
-  ]);
-
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [viewMode, setViewMode] = useState<'marketplace' | 'my-agents' | 'connected'>('marketplace');
+  const [showRouteOptimizerModal, setShowRouteOptimizerModal] = useState(false);
 
-  const filteredAgents = agents.filter(agent => {
+  const categories = ['All', 'Optimization', 'Analytics', 'Prediction', 'Security', 'Maintenance', 'Customer Service'];
+
+  const filteredAgents = featuredAgents.filter(agent => {
     const matchesSearch = agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          agent.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || agent.type === selectedCategory;
+    const matchesCategory = selectedCategory === 'All' || agent.category === selectedCategory;
+    
+    // For demo purposes, consider agents 2 and 5 as connected
+    const isConnected = agent.id === '2' || agent.id === '5';
+    
+    if (viewMode === 'connected') {
+      return matchesSearch && matchesCategory && isConnected;
+    }
+    if (viewMode === 'my-agents') {
+      return matchesSearch && matchesCategory && isConnected;
+    }
     return matchesSearch && matchesCategory;
   });
 
-  const totalRevenue = agents.reduce((sum, agent) => sum + agent.revenue, 0);
-  const totalDownloads = agents.reduce((sum, agent) => sum + agent.downloads, 0);
-  const avgRating = agents.reduce((sum, agent) => sum + agent.rating, 0) / agents.length;
+  const handleViewDetails = (agentId: string) => {
+    if (agentId === 'route-optimizer-pro') {
+      setShowRouteOptimizerModal(true);
+    } else {
+      console.log('View details:', agentId);
+    }
+  };
 
-  // Revenue distribution (40% Core, 35% Agents, 15% Innovation, 10% Users)
-  const revenueDistribution = {
-    core: totalRevenue * 0.40,
-    agents: totalRevenue * 0.35,
-    innovation: totalRevenue * 0.15,
-    users: totalRevenue * 0.10
+  const handleBuyRouteOptimizer = () => {
+    console.log('Buy RouteOptimizer Pro');
+    // Add purchase logic here
+    setShowRouteOptimizerModal(false);
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <div className="container mx-auto px-6 py-8">
+        
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-thin text-white mb-2 matrix-text">
-            AI Agent <span className="text-green-400">Marketplace</span>
-          </h1>
-          <p className="text-gray-400 font-light">
-            Discover, deploy, and trade intelligent fleet optimization agents
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+                AI Marketplace
+              </h1>
+              <p className="text-slate-400 text-lg">
+                Discover, connect, and optimize with intelligent fleet agents
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Badge variant="outline" className="text-green-400 border-green-400">
+                <Bot className="w-4 h-4 mr-2" />
+                {featuredAgents.length} Agents Available
+              </Badge>
+              <Button>
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                My Cart (0)
+              </Button>
+            </div>
+          </div>
         </motion.div>
 
-        {/* Marketplace Metrics */}
+        {/* Stats Bar */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
+          transition={{ delay: 0.1 }}
           className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
         >
-          <MetricCard
-            title="Total Revenue"
-            value={`€${totalRevenue.toLocaleString()}`}
-            subtitle="Marketplace volume"
-            icon={Euro}
-            trend="up"
-            trendValue="+24%"
-            animate={true}
-          />
-          <MetricCard
-            title="Active Agents"
-            value={agents.length}
-            subtitle="Available for download"
-            icon={Bot}
-            trend="up"
-            trendValue="+3"
-            animate={true}
-          />
-          <MetricCard
-            title="Total Downloads"
-            value={totalDownloads.toLocaleString()}
-            subtitle="Agent installations"
-            icon={Download}
-            trend="up"
-            trendValue="+156"
-            animate={true}
-          />
-          <MetricCard
-            title="Avg Rating"
-            value={avgRating.toFixed(1)}
-            subtitle="User satisfaction"
-            icon={Star}
-            trend="up"
-            trendValue="+0.2"
-            animate={true}
-          />
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Total Agents</p>
+                  <p className="text-2xl font-bold text-white">{featuredAgents.length}</p>
+                </div>
+                <Bot className="w-8 h-8 text-blue-400" />
+              </div>
+            </CardContent>
+          </Card>
+          
+                           <Card className="bg-slate-800/50 border-slate-700">
+             <CardContent className="p-4">
+               <div className="flex items-center justify-between">
+                 <div>
+                   <p className="text-sm text-slate-400">Connected</p>
+                   <p className="text-2xl font-bold text-green-400">
+                     {featuredAgents.filter(a => a.id === '2' || a.id === '5').length}
+                   </p>
+                 </div>
+                 <Zap className="w-8 h-8 text-green-400" />
+               </div>
+             </CardContent>
+           </Card>
+          
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Avg Rating</p>
+                  <p className="text-2xl font-bold text-yellow-400">4.8</p>
+                </div>
+                <Star className="w-8 h-8 text-yellow-400" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Total Users</p>
+                  <p className="text-2xl font-bold text-purple-400">4.7K</p>
+                </div>
+                <Users className="w-8 h-8 text-purple-400" />
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
-        {/* Revenue Distribution */}
+        {/* Search and Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="terminal-border rounded-lg p-6 mb-8"
+          transition={{ delay: 0.2 }}
+          className="mb-8"
         >
-          <h3 className="text-lg font-light text-white mb-4 matrix-text">Revenue Distribution Model</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-light text-green-400">40%</div>
-              <div className="text-sm text-gray-400">Core Platform</div>
-              <div className="text-xs text-gray-500">€{revenueDistribution.core.toLocaleString()}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-light text-blue-400">35%</div>
-              <div className="text-sm text-gray-400">AI Agents</div>
-              <div className="text-xs text-gray-500">€{revenueDistribution.agents.toLocaleString()}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-light text-purple-400">15%</div>
-              <div className="text-sm text-gray-400">Innovation Fund</div>
-              <div className="text-xs text-gray-500">€{revenueDistribution.innovation.toLocaleString()}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-light text-yellow-400">10%</div>
-              <div className="text-sm text-gray-400">User Rewards</div>
-              <div className="text-xs text-gray-500">€{revenueDistribution.users.toLocaleString()}</div>
-            </div>
-          </div>
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-6">
+              <div className="flex flex-col lg:flex-row gap-4">
+                {/* Search */}
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                    <Input
+                      placeholder="Search agents..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 bg-slate-700/50 border-slate-600"
+                    />
+                  </div>
+                </div>
+
+                {/* Category Filter */}
+                <div className="flex gap-2 overflow-x-auto">
+                  {categories.map((category) => (
+                    <Button
+                      key={category}
+                      variant={selectedCategory === category ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedCategory(category)}
+                      className="whitespace-nowrap"
+                    >
+                      {category}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* View Mode */}
+                <div className="flex gap-2">
+                  <Button
+                    variant={viewMode === 'marketplace' ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setViewMode('marketplace')}
+                  >
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    Marketplace
+                  </Button>
+                  <Button
+                    variant={viewMode === 'connected' ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setViewMode('connected')}
+                  >
+                    <Zap className="w-4 h-4 mr-2" />
+                    Connected
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
-        {/* Search and Filter */}
+        {/* Agents Grid */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col md:flex-row gap-4 mb-8"
-        >
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search agents..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-green-400 focus:outline-none"
-            />
-          </div>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:border-green-400 focus:outline-none"
-          >
-            <option value="all">All Categories</option>
-            <option value="fuel-optimizer">Fuel Optimizer</option>
-            <option value="route-genius">Route Genius</option>
-            <option value="weather-prophet">Weather Prophet</option>
-            <option value="cost-analyzer">Cost Analyzer</option>
-          </select>
-          <button className="px-6 py-2 bg-green-400/20 text-green-400 border border-green-400 rounded-lg hover:bg-green-400/30 transition-all duration-300 flex items-center space-x-2">
-            <Plus className="w-4 h-4" />
-            <span>Register Agent</span>
-          </button>
-        </motion.div>
-
-        {/* Agent Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+          transition={{ delay: 0.3 }}
+          className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
         >
           {filteredAgents.map((agent, index) => (
             <motion.div
               key={agent.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 * index }}
-              className="terminal-border rounded-lg p-6 hover:border-green-400/50 transition-all duration-300"
+              transition={{ delay: 0.1 * index }}
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-green-400/10 rounded-lg">
-                    <Bot className="w-6 h-6 text-green-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-light text-white matrix-text">{agent.name}</h3>
-                    <p className="text-sm text-gray-400">v{agent.version} • by {agent.owner}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-light text-green-400">€{agent.price}</div>
-                  <div className="flex items-center space-x-1 text-sm text-yellow-400">
-                    <Star className="w-4 h-4 fill-current" />
-                    <span>{agent.rating}</span>
-                  </div>
-                </div>
-              </div>
-
-              <p className="text-sm text-gray-300 mb-4 font-light leading-relaxed">
-                {agent.description}
-              </p>
-
-              <div className="mb-4">
-                <h4 className="text-sm font-light text-green-400 mb-2">Capabilities</h4>
-                <div className="flex flex-wrap gap-2">
-                  {agent.capabilities.map((capability, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2 py-1 bg-gray-800 text-gray-300 text-xs rounded"
-                    >
-                      {capability}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <div className="text-center">
-                  <div className="text-sm font-light text-white">{agent.downloads}</div>
-                  <div className="text-xs text-gray-400">Downloads</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-sm font-light text-white">€{agent.revenue.toLocaleString()}</div>
-                  <div className="text-xs text-gray-400">Revenue</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-sm font-light text-white">{agent.rating}</div>
-                  <div className="text-xs text-gray-400">Rating</div>
-                </div>
-              </div>
-
-              <div className="flex space-x-3">
-                <button className="flex-1 px-4 py-2 bg-green-400/20 text-green-400 border border-green-400 rounded-lg hover:bg-green-400/30 transition-all duration-300 flex items-center justify-center space-x-2">
-                  <Download className="w-4 h-4" />
-                  <span>Install</span>
-                </button>
-                <button className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-all duration-300">
-                  Preview
-                </button>
-              </div>
+              <AgentCardEnhanced
+                agent={agent}
+                view={viewMode}
+                onConnect={() => console.log('Connect agent:', agent.id)}
+                onEdit={() => console.log('Edit agent:', agent.id)}
+                onDelete={() => console.log('Delete agent:', agent.id)}
+                onToggleStatus={() => console.log('Toggle status:', agent.id)}
+                onViewDetails={handleViewDetails}
+              />
             </motion.div>
           ))}
         </motion.div>
 
+        {/* Empty State */}
         {filteredAgents.length === 0 && (
-          <div className="text-center py-12">
-            <Bot className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400 font-light">No agents found matching your criteria.</p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-16"
+          >
+            <Bot className="w-16 h-16 mx-auto text-slate-600 mb-4" />
+            <h3 className="text-xl font-semibold text-slate-300 mb-2">No agents found</h3>
+            <p className="text-slate-400 mb-6">
+              Try adjusting your search criteria or browse different categories
+            </p>
+            <Button onClick={() => { setSearchTerm(''); setSelectedCategory('All'); }}>
+              Reset Filters
+            </Button>
+          </motion.div>
         )}
+
+        {/* RouteOptimizer Pro Modal */}
+        <RouteOptimizerModal
+          isOpen={showRouteOptimizerModal}
+          onClose={() => setShowRouteOptimizerModal(false)}
+          onBuy={handleBuyRouteOptimizer}
+        />
       </div>
     </div>
   );
