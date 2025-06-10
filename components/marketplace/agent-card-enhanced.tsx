@@ -41,6 +41,7 @@ interface EnhancedAIAgent {
   validationScore: number;
   connectedAPIs?: number;
   activeConnections?: number;
+  comingSoon?: boolean;
 }
 
 interface AgentCardEnhancedProps {
@@ -65,6 +66,7 @@ export function AgentCardEnhanced({
   onViewDetails 
 }: AgentCardEnhancedProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showAllCapabilities, setShowAllCapabilities] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -92,7 +94,7 @@ export function AgentCardEnhanced({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="terminal-border rounded-lg p-6 bg-gray-900 hover:bg-gray-800 transition-colors"
+        className="terminal-border rounded-lg p-6 bg-gray-900 hover:bg-gray-800 transition-colors relative"
       >
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
@@ -183,14 +185,18 @@ export function AgentCardEnhanced({
         {/* Capabilities */}
         <div className="mb-4">
           <div className="flex flex-wrap gap-2">
-            {agent.capabilities.slice(0, 3).map((capability, index) => (
+            {(showAllCapabilities ? agent.capabilities : agent.capabilities.slice(0, 3)).map((capability, index) => (
               <Badge key={index} variant="secondary" className="text-xs">
                 {capability}
               </Badge>
             ))}
             {agent.capabilities.length > 3 && (
-              <Badge variant="outline" className="text-xs">
-                +{agent.capabilities.length - 3} more
+              <Badge 
+                variant="outline" 
+                className="text-xs cursor-pointer hover:bg-gray-700 transition-colors"
+                onClick={() => setShowAllCapabilities(!showAllCapabilities)}
+              >
+                {showAllCapabilities ? 'Show less' : `+${agent.capabilities.length - 3} more`}
               </Badge>
             )}
           </div>
@@ -336,6 +342,20 @@ export function AgentCardEnhanced({
             <span className="text-xs text-red-300">
               Low validation score - review before production use
             </span>
+          </div>
+        )}
+
+        {/* Coming Soon Overlay */}
+        {agent.comingSoon && (
+          <div className="absolute inset-0 bg-gray-900/70 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-blue-500/30">
+                <Clock className="w-8 h-8 text-blue-400" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Coming Soon</h3>
+              <p className="text-gray-400 text-sm">Agent under development</p>
+              <Badge className="mt-2 bg-blue-500/20 text-blue-400 border-blue-500/30">Available Soon</Badge>
+            </div>
           </div>
         )}
       </motion.div>

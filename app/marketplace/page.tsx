@@ -24,6 +24,7 @@ import {
 import { AgentCardEnhanced } from '@/components/marketplace/agent-card-enhanced';
 import { RouteOptimizerModal } from '@/components/marketplace/route-optimizer-modal';
 import { FuelMasterModal } from '@/components/marketplace/fuel-master-modal';
+import { DeliveryPredictorModal } from '@/components/marketplace/delivery-predictor-modal';
 
   const featuredAgents = [
     {
@@ -149,7 +150,8 @@ import { FuelMasterModal } from '@/components/marketplace/fuel-master-modal';
       verified: true
     },
     lastUpdated: new Date(),
-    validationScore: 96.1
+    validationScore: 96.1,
+    comingSoon: true
   },
   {
     id: '5',
@@ -176,7 +178,8 @@ import { FuelMasterModal } from '@/components/marketplace/fuel-master-modal';
       verified: true
     },
     lastUpdated: new Date(),
-    validationScore: 87.3
+    validationScore: 87.3,
+    comingSoon: true
   },
   {
     id: '6',
@@ -203,7 +206,8 @@ import { FuelMasterModal } from '@/components/marketplace/fuel-master-modal';
       verified: true
     },
     lastUpdated: new Date(),
-    validationScore: 92.4
+    validationScore: 92.4,
+    comingSoon: true
   }
 ];
 
@@ -213,6 +217,7 @@ export default function MarketplacePage() {
   const [viewMode, setViewMode] = useState<'marketplace' | 'my-agents' | 'connected'>('marketplace');
   const [showRouteOptimizerModal, setShowRouteOptimizerModal] = useState(false);
   const [showFuelMasterModal, setShowFuelMasterModal] = useState(false);
+  const [showDeliveryPredictorModal, setShowDeliveryPredictorModal] = useState(false);
 
   const categories = ['All', 'Optimization', 'Analytics', 'Prediction', 'Security', 'Maintenance', 'Customer Service'];
 
@@ -238,6 +243,8 @@ export default function MarketplacePage() {
       setShowRouteOptimizerModal(true);
     } else if (agentId === '2') {
       setShowFuelMasterModal(true);
+    } else if (agentId === '3') {
+      setShowDeliveryPredictorModal(true);
     } else {
       console.log('View details:', agentId);
     }
@@ -253,6 +260,12 @@ export default function MarketplacePage() {
     console.log('Buy FuelMaster AI');
     // Add purchase logic here
     setShowFuelMasterModal(false);
+  };
+
+  const handleBuyDeliveryPredictor = () => {
+    console.log('Buy DeliveryPredictor');
+    // Add purchase logic here
+    setShowDeliveryPredictorModal(false);
   };
 
   return (
@@ -464,6 +477,13 @@ export default function MarketplacePage() {
           isOpen={showFuelMasterModal}
           onClose={() => setShowFuelMasterModal(false)}
           onBuy={handleBuyFuelMaster}
+        />
+
+        {/* DeliveryPredictor Modal */}
+        <DeliveryPredictorModal
+          isOpen={showDeliveryPredictorModal}
+          onClose={() => setShowDeliveryPredictorModal(false)}
+          onBuy={handleBuyDeliveryPredictor}
         />
       </div>
     </div>
