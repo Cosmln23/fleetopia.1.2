@@ -5,7 +5,9 @@ import { motion } from 'framer-motion';
 import { 
   Bot, Star, Download, Eye, Settings, Shield, Zap, 
   TrendingUp, Users, Clock, CheckCircle, AlertTriangle,
-  Play, Pause, Trash2, Edit, ExternalLink
+  Play, Pause, Trash2, Edit, ExternalLink, Brain,
+  ChevronRight,
+  Fuel
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -261,9 +263,12 @@ export function AgentCardEnhanced({
                   variant="outline"
                   size="sm"
                   onClick={() => onViewDetails?.(agent.id)}
+                  className={agent.id === '2' ? "bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border-blue-500/30 hover:from-blue-600/30 hover:to-cyan-600/30" : ""}
+                  title={agent.id === '2' ? "View FuelMaster AI Complete Systems" : "View details"}
                 >
                   <ExternalLink className="w-4 h-4" />
                 </Button>
+                
                 <Button
                   size="sm"
                   onClick={() => onDownload?.(agent.id)}

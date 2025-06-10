@@ -32,7 +32,10 @@ import {
   Star,
   Shield,
   Wifi,
-  Globe
+  Globe,
+  Brain,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -99,6 +102,71 @@ export default function FleetMindHome() {
     integrationHealth: 96.8,
     clientSatisfaction: 4.8
   });
+
+  const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
+
+  const featuredAgents = [
+    { 
+      id: 'route-optimizer-pro',
+      name: 'RouteOptimizer Pro', 
+      rating: 4.9, 
+      price: '€299/mo',
+      description: 'AI-powered route optimization with ML learning'
+    },
+    { 
+      id: 'fuel-master-ai',
+      name: 'FuelMaster AI', 
+      rating: 4.8, 
+      price: '€199/mo',
+      description: 'Complete fuel optimization ecosystem with 3 advanced AI engines',
+      systems: [
+        {
+          name: 'PROMPT 1: Predictive Fuel Consumption AI',
+          icon: Brain,
+          color: 'purple',
+          features: [
+            '7-day fuel consumption forecasting with TensorFlow',
+            'Weather forecast integration pentru impact predictions',
+            'Driver behavior trend analysis cu ML models',
+            '95%+ prediction accuracy with neural networks'
+          ]
+        },
+        {
+          name: 'PROMPT 2: Dynamic Fuel Pricing Optimizer',
+          icon: TrendingUp,
+          color: 'green',
+          features: [
+            'Real-time market price tracking și optimization',
+            'Strategic fuel purchasing cu cost predictions',
+            'Market trend analysis pentru 15-25% savings',
+            'Multi-supplier negotiation cu automated bidding'
+          ]
+        },
+        {
+          name: 'PROMPT 3: Micro-Optimization Fuel Engine',
+          icon: Zap,
+          color: 'yellow',
+          features: [
+            'Real-time driving behavior analysis cu IoT integration',
+            'Immediate coaching feedback pentru fuel efficiency',
+            '8-12% improvement prin micro-optimizations',
+            'Vehicle-specific algorithms cu 85% accuracy'
+          ]
+        }
+      ]
+    },
+    { 
+      id: 'delivery-predictor',
+      name: 'DeliveryPredictor', 
+      rating: 4.7, 
+      price: '€149/mo',
+      description: 'ML-powered delivery time predictions and scheduling'
+    }
+  ];
+
+  const toggleAgentExpand = (agentId: string) => {
+    setExpandedAgent(expandedAgent === agentId ? null : agentId);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -318,11 +386,7 @@ export default function FleetMindHome() {
                     <CardDescription>Top performing AI agents</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {[
-                      { name: 'RouteOptimizer Pro', rating: 4.9, price: '€299/mo' },
-                      { name: 'FuelMaster AI', rating: 4.8, price: '€199/mo' },
-                      { name: 'DeliveryPredctor', rating: 4.7, price: '€149/mo' }
-                    ].map((agent, i) => (
+                    {featuredAgents.map((agent, i) => (
                       <div key={i} className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg">
                         <div>
                           <p className="font-medium text-slate-200">{agent.name}</p>

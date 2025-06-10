@@ -18,10 +18,12 @@ import {
   Zap,
   Shield,
   Clock,
-  Users
+  Users,
+  ExternalLink
 } from 'lucide-react';
 import { AgentCardEnhanced } from '@/components/marketplace/agent-card-enhanced';
 import { RouteOptimizerModal } from '@/components/marketplace/route-optimizer-modal';
+import { FuelMasterModal } from '@/components/marketplace/fuel-master-modal';
 
   const featuredAgents = [
     {
@@ -63,10 +65,18 @@ import { RouteOptimizerModal } from '@/components/marketplace/route-optimizer-mo
   {
     id: '2',
     name: 'FuelMaster AI',
-    description: 'Intelligent fuel consumption monitoring and optimization',
+    description: 'Complete fuel optimization ecosystem with 3 advanced AI engines: Predictive Fuel Consumption AI (7-day forecasting), Dynamic Fuel Pricing Optimizer (real-time cost optimization), and Micro-Optimization Fuel Engine (driving behavior coaching)',
     version: '1.8.3',
     category: 'Analytics',
-    capabilities: ['Fuel analytics', 'Predictive maintenance', 'Cost tracking'],
+    capabilities: [
+      'Predictive Fuel Consumption AI', 
+      'Dynamic Fuel Pricing Optimizer', 
+      'Micro-Optimization Fuel Engine',
+      'Real-time driving coaching',
+      '7-day fuel forecasting',
+      'Market trend analysis',
+      'Cost optimization'
+    ],
     marketplace: true,
     price: 199,
     rating: 4.8,
@@ -79,7 +89,7 @@ import { RouteOptimizerModal } from '@/components/marketplace/route-optimizer-mo
     },
     status: 'active' as const,
     isTemplate: false,
-    requiresAPI: ['Fuel Price API', 'Vehicle Diagnostics'],
+    requiresAPI: ['Fuel Price API', 'Vehicle Diagnostics', 'Weather API', 'IoT Sensors'],
     owner: {
       name: 'FuelTech Solutions',
       verified: true
@@ -202,6 +212,7 @@ export default function MarketplacePage() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [viewMode, setViewMode] = useState<'marketplace' | 'my-agents' | 'connected'>('marketplace');
   const [showRouteOptimizerModal, setShowRouteOptimizerModal] = useState(false);
+  const [showFuelMasterModal, setShowFuelMasterModal] = useState(false);
 
   const categories = ['All', 'Optimization', 'Analytics', 'Prediction', 'Security', 'Maintenance', 'Customer Service'];
 
@@ -225,6 +236,8 @@ export default function MarketplacePage() {
   const handleViewDetails = (agentId: string) => {
     if (agentId === 'route-optimizer-pro') {
       setShowRouteOptimizerModal(true);
+    } else if (agentId === '2') {
+      setShowFuelMasterModal(true);
     } else {
       console.log('View details:', agentId);
     }
@@ -234,6 +247,12 @@ export default function MarketplacePage() {
     console.log('Buy RouteOptimizer Pro');
     // Add purchase logic here
     setShowRouteOptimizerModal(false);
+  };
+
+  const handleBuyFuelMaster = () => {
+    console.log('Buy FuelMaster AI');
+    // Add purchase logic here
+    setShowFuelMasterModal(false);
   };
 
   return (
@@ -438,6 +457,13 @@ export default function MarketplacePage() {
           isOpen={showRouteOptimizerModal}
           onClose={() => setShowRouteOptimizerModal(false)}
           onBuy={handleBuyRouteOptimizer}
+        />
+
+        {/* FuelMaster AI Modal */}
+        <FuelMasterModal
+          isOpen={showFuelMasterModal}
+          onClose={() => setShowFuelMasterModal(false)}
+          onBuy={handleBuyFuelMaster}
         />
       </div>
     </div>
