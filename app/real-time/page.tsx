@@ -165,6 +165,12 @@ export default function RealTimePage() {
 
   const handleVehicleClick = (vehicle: any) => {
     setSelectedVehicle(vehicle);
+    // Force map resize after vehicle selection
+    setTimeout(() => {
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(new Event('resize'));
+      }
+    }, 100);
   };
 
   const MetricCard = ({ icon: Icon, title, value, unit, color, trend }: any) => (
@@ -448,6 +454,11 @@ export default function RealTimePage() {
                     <TileLayer
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      maxZoom={19}
+                      tileSize={256}
+                      zoomOffset={0}
+                      detectRetina={true}
+                      keepBuffer={2}
                     />
                     <Marker
                       position={[selectedVehicle.location.lat, selectedVehicle.location.lng]}
