@@ -614,7 +614,7 @@ export default function RealTimePage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
-        className="fixed bottom-4 right-4 bg-background border rounded-lg shadow-lg p-4 max-w-sm"
+        className="fixed bottom-4 right-4 bg-background border rounded-lg shadow-lg p-4 max-w-sm z-50"
       >
         <div className="flex items-center gap-2 mb-2">
           <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
