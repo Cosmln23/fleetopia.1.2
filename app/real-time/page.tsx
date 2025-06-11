@@ -371,115 +371,118 @@ export default function RealTimePage() {
           <TabsTrigger value="fuel">Fuel Prices</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="tracking" className="space-y-4">
+                <TabsContent value="tracking" className="space-y-4">
+          {/* Combined Vehicle List + Map Layout */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
-                Vehicle Tracking
-              </CardTitle>
-              <CardDescription>Real-time vehicle locations and status</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {realTimeData.vehicleTracking.length > 0 ? (
-                <div className="space-y-4">
-                  {realTimeData.vehicleTracking.slice(0, 5).map((tracking, index) => (
-                    <div 
-                      key={index} 
-                      className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
-                        selectedVehicle?.id === tracking.id ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500' : ''
-                      }`}
-                      onClick={() => handleVehicleClick(tracking)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Truck className="h-5 w-5 text-blue-600" />
-                        <div>
-                          <div className="font-medium flex items-center gap-2">
-                            Vehicle {tracking.vehicleId.slice(-6)}
-                            {selectedVehicle?.id === tracking.id && (
-                              <Badge variant="secondary" className="text-xs">
-                                <Eye className="h-3 w-3 mr-1" />
-                                On Map
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {tracking.speed}km/h • {tracking.status}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-medium">
-                          {tracking.location.lat.toFixed(4)}, {tracking.location.lng.toFixed(4)}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {new Date(tracking.timestamp).toLocaleTimeString()}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No tracking data available</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-                    {/* Interactive Map - Always Visible */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Fleet Vehicle Locations
+                Fleet Vehicle Tracking & Live Map
               </CardTitle>
               <CardDescription>
-                {selectedVehicle 
-                  ? `Focused on: Vehicle ${selectedVehicle.vehicleId.slice(-6)} - ${selectedVehicle.name}`
-                  : 'Click on any vehicle above to focus on its location'
-                }
+                Real-time vehicle locations and status - Click on any vehicle to focus on map
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-96 rounded-lg overflow-hidden border">
-                <MapContainer
-                  center={selectedVehicle 
-                    ? [selectedVehicle.location.lat, selectedVehicle.location.lng]
-                    : [45.7489, 21.2087] // Timișoara center as default
-                  }
-                  zoom={selectedVehicle ? 13 : 7}
-                  style={{ height: '100%', width: '100%' }}
-                  className="rounded-lg"
-                >
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  />
-                  {/* Show all vehicles */}
-                  {realTimeData.vehicleTracking.map((vehicle, index) => (
-                    <Marker
-                      key={index}
-                      position={[vehicle.location.lat, vehicle.location.lng]}
-                      icon={createCustomIcon(vehicle.status)}
-                    >
-                      <Popup>
-                        <div className="p-2">
-                          <h3 className="font-semibold">{vehicle.name}</h3>
-                          <p className="text-sm text-gray-600">Driver: {vehicle.driver}</p>
-                          <p className="text-sm text-gray-600">Speed: {vehicle.speed} km/h</p>
-                          <p className="text-sm text-gray-600">Fuel: {vehicle.fuel}%</p>
-                          <p className="text-sm text-gray-600">Status: {vehicle.status}</p>
-                          <p className="text-sm text-gray-600">Route: {vehicle.route}</p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Vehicle List - Left Side */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg mb-4">Active Vehicles</h3>
+                  {realTimeData.vehicleTracking.length > 0 ? (
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {realTimeData.vehicleTracking.map((tracking, index) => (
+                        <div 
+                          key={index} 
+                          className={`p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                            selectedVehicle?.id === tracking.id ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500' : ''
+                          }`}
+                          onClick={() => handleVehicleClick(tracking)}
+                        >
+                          <div className="flex items-center gap-3 mb-2">
+                            <Truck className="h-4 w-4 text-blue-600" />
+                            <div className="font-medium flex items-center gap-2">
+                              Vehicle {tracking.vehicleId.slice(-6)}
+                              {selectedVehicle?.id === tracking.id && (
+                                <Badge variant="secondary" className="text-xs">
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  Focused
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-sm text-muted-foreground grid grid-cols-2 gap-2">
+                            <span>Speed: {tracking.speed}km/h</span>
+                            <span>Status: {tracking.status}</span>
+                            <span>Fuel: {tracking.fuel}%</span>
+                            <span>Driver: {tracking.driver}</span>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {tracking.location.lat.toFixed(4)}, {tracking.location.lng.toFixed(4)} • {new Date(tracking.timestamp).toLocaleTimeString()}
+                          </div>
                         </div>
-                      </Popup>
-                    </Marker>
-                  ))}
-                </MapContainer>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No tracking data available</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Map - Right Side */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-lg">Live Fleet Map</h3>
+                    <div className="text-sm text-muted-foreground">
+                      {selectedVehicle 
+                        ? `Focused: ${selectedVehicle.vehicleId.slice(-6)}`
+                        : 'All vehicles visible'
+                      }
+                    </div>
+                  </div>
+                  <div className="h-96 rounded-lg overflow-hidden border">
+                    <MapContainer
+                      center={selectedVehicle 
+                        ? [selectedVehicle.location.lat, selectedVehicle.location.lng]
+                        : [45.7489, 21.2087] // Timișoara center as default
+                      }
+                      zoom={selectedVehicle ? 13 : 7}
+                      style={{ height: '100%', width: '100%' }}
+                      className="rounded-lg"
+                    >
+                      <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      />
+                      {/* Show all vehicles */}
+                      {realTimeData.vehicleTracking.map((vehicle, index) => (
+                        <Marker
+                          key={index}
+                          position={[vehicle.location.lat, vehicle.location.lng]}
+                          icon={createCustomIcon(vehicle.status)}
+                        >
+                          <Popup>
+                            <div className="p-2">
+                              <h3 className="font-semibold">{vehicle.name}</h3>
+                              <p className="text-sm text-gray-600">Driver: {vehicle.driver}</p>
+                              <p className="text-sm text-gray-600">Speed: {vehicle.speed} km/h</p>
+                              <p className="text-sm text-gray-600">Fuel: {vehicle.fuel}%</p>
+                              <p className="text-sm text-gray-600">Status: {vehicle.status}</p>
+                              <p className="text-sm text-gray-600">Route: {vehicle.route}</p>
+                            </div>
+                          </Popup>
+                        </Marker>
+                      ))}
+                    </MapContainer>
+                  </div>
+                </div>
               </div>
+
+              {/* Selected Vehicle Details - Bottom */}
               {selectedVehicle && (
-                <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <h4 className="font-medium mb-3">Selected Vehicle Details</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
                       <span className="text-muted-foreground">Speed:</span>
