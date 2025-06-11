@@ -435,13 +435,16 @@ export default function RealTimePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-96 rounded-lg overflow-hidden border">
-                  <MapContainer
-                    center={[selectedVehicle.location.lat, selectedVehicle.location.lng]}
-                    zoom={13}
-                    style={{ height: '100%', width: '100%' }}
-                    className="rounded-lg"
-                  >
+                <div className="h-96 rounded-lg overflow-hidden border" style={{ position: 'relative' }}>
+                                      <MapContainer
+                      key={selectedVehicle.id}
+                      center={[selectedVehicle.location.lat, selectedVehicle.location.lng]}
+                      zoom={13}
+                      style={{ height: '384px', width: '100%', position: 'absolute', top: 0, left: 0 }}
+                      className="rounded-lg"
+                      attributionControl={true}
+                      zoomControl={true}
+                    >
                     <TileLayer
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
