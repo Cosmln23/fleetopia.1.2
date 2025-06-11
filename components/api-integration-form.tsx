@@ -196,7 +196,7 @@ export function APIIntegrationForm({ onSubmit, initialData }: APIIntegrationForm
               <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
                 <SelectValue placeholder="Select or type custom" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-gray-800 border-gray-700 text-white z-50 max-h-[200px] overflow-y-auto">
                 <SelectItem value="transport">Transport/Logistics</SelectItem>
                 <SelectItem value="fuel">Fuel Services</SelectItem>
                 <SelectItem value="weather">Weather</SelectItem>
@@ -287,7 +287,7 @@ export function APIIntegrationForm({ onSubmit, initialData }: APIIntegrationForm
                 <SelectTrigger className="w-24 bg-gray-800 border-gray-700">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-gray-800 border-gray-700 text-white z-50 max-h-[200px] overflow-y-auto">
                   <SelectItem value="text">Text</SelectItem>
                   <SelectItem value="url">URL</SelectItem>
                   <SelectItem value="number">Number</SelectItem>
@@ -360,7 +360,7 @@ export function APIIntegrationForm({ onSubmit, initialData }: APIIntegrationForm
                 <SelectTrigger className="w-32 bg-gray-800 border-gray-700">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-gray-800 border-gray-700 text-white z-50 max-h-[200px] overflow-y-auto">
                   <SelectItem value="text">Text</SelectItem>
                   <SelectItem value="password">Password</SelectItem>
                   <SelectItem value="email">Email</SelectItem>
@@ -418,7 +418,7 @@ export function APIIntegrationForm({ onSubmit, initialData }: APIIntegrationForm
                     <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-gray-800 border-gray-700 text-white z-50 max-h-[200px] overflow-y-auto">
                       <SelectItem value="GET">GET</SelectItem>
                       <SelectItem value="POST">POST</SelectItem>
                       <SelectItem value="PUT">PUT</SelectItem>

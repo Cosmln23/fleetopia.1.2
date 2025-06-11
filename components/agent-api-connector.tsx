@@ -175,26 +175,26 @@ export function AgentAPIConnector({ onConnect, existingConnections = [] }: Agent
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-white">1. Select AI Agent</h3>
         <Select value={selectedAgent} onValueChange={setSelectedAgent}>
-          <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+          <SelectTrigger className="bg-gray-800 border-gray-700 text-white h-12">
             <SelectValue placeholder="Choose an AI agent" />
           </SelectTrigger>
-          <SelectContent>
-            <div className="text-xs text-gray-400 px-2 py-1">Marketplace Agents</div>
+          <SelectContent className="bg-gray-800 border-gray-700 text-white z-[60] max-h-60">
+            <div className="text-xs text-gray-400 px-2 py-1 border-b border-gray-700 mb-1">Marketplace Agents</div>
             {agents.filter(a => a.marketplace).map(agent => (
-              <SelectItem key={agent.id} value={agent.id}>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span>{agent.name}</span>
+              <SelectItem key={agent.id} value={agent.id} className="hover:bg-gray-700 focus:bg-gray-700">
+                <div className="flex items-center space-x-2 py-1">
+                  <div className="w-2 h-2 bg-green-400 rounded-full flex-shrink-0"></div>
+                  <span className="truncate">{agent.name}</span>
                   <span className="text-xs text-gray-400">({agent.category})</span>
                 </div>
               </SelectItem>
             ))}
-            <div className="text-xs text-gray-400 px-2 py-1 border-t border-gray-700 mt-1">Your Custom Agents</div>
+            <div className="text-xs text-gray-400 px-2 py-1 border-t border-gray-700 mt-1 mb-1">Your Custom Agents</div>
             {agents.filter(a => !a.marketplace).map(agent => (
-              <SelectItem key={agent.id} value={agent.id}>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                  <span>{agent.name}</span>
+              <SelectItem key={agent.id} value={agent.id} className="hover:bg-gray-700 focus:bg-gray-700">
+                <div className="flex items-center space-x-2 py-1">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full flex-shrink-0"></div>
+                  <span className="truncate">{agent.name}</span>
                   <span className="text-xs text-gray-400">(custom)</span>
                 </div>
               </SelectItem>
@@ -222,17 +222,17 @@ export function AgentAPIConnector({ onConnect, existingConnections = [] }: Agent
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-white">2. Select Your API</h3>
         <Select value={selectedAPI} onValueChange={setSelectedAPI}>
-          <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+          <SelectTrigger className="bg-gray-800 border-gray-700 text-white h-12">
             <SelectValue placeholder="Choose your API integration" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-gray-800 border-gray-700 text-white z-[60] max-h-60">
             {apis.map(api => (
-              <SelectItem key={api.id} value={api.id}>
-                <div className="flex items-center space-x-2">
-                  <div className={`w-2 h-2 rounded-full ${
+              <SelectItem key={api.id} value={api.id} className="hover:bg-gray-700 focus:bg-gray-700">
+                <div className="flex items-center space-x-2 py-1">
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                     api.status === 'active' ? 'bg-green-400' : 'bg-red-400'
                   }`}></div>
-                  <span>{api.name}</span>
+                  <span className="truncate">{api.name}</span>
                   <span className="text-xs text-gray-400">({api.type})</span>
                 </div>
               </SelectItem>
@@ -301,13 +301,13 @@ export function AgentAPIConnector({ onConnect, existingConnections = [] }: Agent
                   priority: parseInt(value)
                 })}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectTrigger className="bg-gray-800 border-gray-700 text-white h-10">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">High Priority</SelectItem>
-                  <SelectItem value="2">Medium Priority</SelectItem>
-                  <SelectItem value="3">Low Priority</SelectItem>
+                <SelectContent className="bg-gray-800 border-gray-700 text-white z-[60]">
+                  <SelectItem value="1" className="hover:bg-gray-700 focus:bg-gray-700">High Priority</SelectItem>
+                  <SelectItem value="2" className="hover:bg-gray-700 focus:bg-gray-700">Medium Priority</SelectItem>
+                  <SelectItem value="3" className="hover:bg-gray-700 focus:bg-gray-700">Low Priority</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -377,12 +377,12 @@ export function AgentAPIConnector({ onConnect, existingConnections = [] }: Agent
       )}
 
       {/* Info Box */}
-      <div className="terminal-border rounded-lg p-4 bg-gray-900">
-        <div className="flex items-start space-x-2">
+      <div className="border border-gray-700 rounded-lg p-4 bg-gray-900/50">
+        <div className="flex items-start space-x-3">
           <Settings className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-          <div className="text-sm text-gray-300">
-            <p className="font-medium text-white mb-1">How Connections Work</p>
-            <ul className="list-disc list-inside space-y-1 text-gray-400">
+          <div className="text-sm text-gray-300 min-w-0">
+            <p className="font-medium text-white mb-2">How Connections Work</p>
+            <ul className="list-disc list-inside space-y-1 text-gray-400 leading-relaxed">
               <li>AI agents use your API to get real-time data</li>
               <li>All costs are charged to your API account</li>
               <li>You control permissions and access levels</li>

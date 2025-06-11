@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -200,17 +199,17 @@ export default function RealTimePage() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Zap className="h-5 w-5" />
+          <Activity className="h-5 w-5" />
           Integration Status
         </CardTitle>
-        <CardDescription>Real-time status of all API integrations</CardDescription>
+        <CardDescription>Real-time system integration health</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          {Object.entries(integrationStatus).map(([service, status]) => (
-            <div key={service} className="flex items-center gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {Object.entries(integrationStatus).map(([key, status]) => (
+            <div key={key} className="flex items-center gap-2">
               <div className={`h-2 w-2 rounded-full ${status ? 'bg-green-500' : 'bg-red-500'}`} />
-              <span className="text-sm capitalize">{service.replace('_', ' ')}</span>
+              <span className="text-sm capitalize">{key}</span>
             </div>
           ))}
         </div>
@@ -220,8 +219,13 @@ export default function RealTimePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p>Loading real-time data...</p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -229,65 +233,56 @@ export default function RealTimePage() {
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex items-center justify-between"
-      >
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Real-time Data</h1>
+          <h1 className="text-3xl font-bold">Real-Time Dashboard</h1>
           <p className="text-muted-foreground">
-            Live monitoring and alerts from all integrated systems
+            Live data streaming from all integrated systems
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <div className="text-sm text-muted-foreground">
-            Last update: {lastUpdate.toLocaleTimeString()}
+            Last updated: {lastUpdate.toLocaleTimeString()}
           </div>
           <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => fetchRealTimeData(true)}
+            onClick={() => fetchRealTimeData(true)} 
             disabled={refreshing}
+            size="sm"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Live Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
         <MetricCard
           icon={Truck}
           title="Active Vehicles"
           value={liveMetrics.activeVehicles}
           color="text-blue-600"
-          trend={2.1}
         />
         <MetricCard
-          icon={Activity}
+          icon={MapPin}
           title="Ongoing Trips"
           value={liveMetrics.ongoingTrips}
           color="text-green-600"
-          trend={1.5}
         />
         <MetricCard
           icon={Fuel}
           title="Fuel Efficiency"
-          value={liveMetrics.fuelEfficiency.toFixed(1)}
+          value={liveMetrics.fuelEfficiency}
           unit="L/100km"
-          color="text-orange-600"
-          trend={-2.8}
+          color="text-yellow-600"
+          trend={-2.1}
         />
         <MetricCard
-          icon={TrendingUp}
+          icon={Navigation}
           title="Avg Speed"
           value={liveMetrics.averageSpeed}
           unit="km/h"
           color="text-purple-600"
-          trend={0.3}
         />
         <MetricCard
           icon={AlertTriangle}
@@ -309,29 +304,14 @@ export default function RealTimePage() {
       <IntegrationStatusCard />
 
       {/* Real-time Data Tabs */}
-      <Tabs defaultValue="alerts" className="space-y-6">
+      <Tabs defaultValue="tracking" className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="alerts">System Alerts</TabsTrigger>
           <TabsTrigger value="tracking">Vehicle Tracking</TabsTrigger>
+          <TabsTrigger value="alerts">System Alerts</TabsTrigger>
           <TabsTrigger value="weather">Weather</TabsTrigger>
           <TabsTrigger value="traffic">Traffic</TabsTrigger>
           <TabsTrigger value="fuel">Fuel Prices</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="alerts" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {realTimeData.systemAlerts.length > 0 ? (
-              realTimeData.systemAlerts.map((alert, index) => (
-                <AlertCard key={index} alert={alert} type="system" />
-              ))
-            ) : (
-              <div className="col-span-2 text-center py-8 text-muted-foreground">
-                <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No active alerts</p>
-              </div>
-            )}
-          </div>
-        </TabsContent>
 
         <TabsContent value="tracking" className="space-y-4">
           <Card>
@@ -377,6 +357,21 @@ export default function RealTimePage() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="alerts" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {realTimeData.systemAlerts.length > 0 ? (
+              realTimeData.systemAlerts.map((alert, index) => (
+                <AlertCard key={index} alert={alert} type="system" />
+              ))
+            ) : (
+              <div className="col-span-2 text-center py-8 text-muted-foreground">
+                <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No active alerts</p>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
         <TabsContent value="weather" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {realTimeData.weatherAlerts.length > 0 ? (
@@ -408,7 +403,7 @@ export default function RealTimePage() {
                     <div key={index} className="p-3 border rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <Badge variant={incident.severity === 'high' ? 'destructive' : 'secondary'}>
-                          {incident.type}
+                          {incident.severity}
                         </Badge>
                         <span className="text-sm text-muted-foreground">
                           {new Date(incident.startTime).toLocaleTimeString()}
@@ -416,7 +411,7 @@ export default function RealTimePage() {
                       </div>
                       <p className="text-sm mb-2">{incident.description}</p>
                       <p className="text-xs text-muted-foreground">
-                        {incident.location.address}
+                        {incident.location}
                       </p>
                     </div>
                   ))}
@@ -447,10 +442,10 @@ export default function RealTimePage() {
                     <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <div className="font-medium">{price.fuelType}</div>
-                        <div className="text-sm text-muted-foreground">Station {price.stationId.slice(-6)}</div>
+                        <div className="text-sm text-muted-foreground">{price.station}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-bold">${price.price.toFixed(2)}</div>
+                        <div className="text-lg font-bold">${price.price}</div>
                         <div className="text-xs text-muted-foreground">per liter</div>
                       </div>
                     </div>
@@ -486,4 +481,4 @@ export default function RealTimePage() {
       </motion.div>
     </div>
   );
-}
+} 

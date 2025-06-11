@@ -128,6 +128,7 @@ export async function POST(request: NextRequest) {
         configuration: configuration || {},
         performance: performance || {},
         marketplace,
+        requiresAPI: true,
         userId: user.id
       },
       include: {
