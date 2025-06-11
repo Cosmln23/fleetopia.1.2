@@ -20,6 +20,53 @@ import {
   Eye
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+
+// Dynamic imports for Leaflet components (client-side only)
+const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import('react-leaflet').then((mod) => mod.TileLayer), { ssr: false });
+const Marker = dynamic(() => import('react-leaflet').then((mod) => mod.Marker), { ssr: false });
+const Popup = dynamic(() => import('react-leaflet').then((mod) => mod.Popup), { ssr: false });
+
+// Custom marker icons
+const createCustomIcon = (status: string) => {
+  const color = status === 'active' ? '#22c55e' :
+                status === 'idle' ? '#eab308' :
+                status === 'maintenance' ? '#ef4444' : '#6b7280';
+
+  if (typeof window !== 'undefined') {
+    const L = require('leaflet');
+    return L.divIcon({
+      html: `
+        <div style="
+          background-color: ${color};
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          border: 3px solid white;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+        ">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+            <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>
+            <path d="M15 18H9"/>
+            <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>  
+            <circle cx="17" cy="18" r="2"/>
+            <circle cx="7" cy="18" r="2"/>
+          </svg>
+        </div>
+      `,
+      className: 'custom-marker',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+      popupAnchor: [0, -15]
+    });
+  }
+  return null;
+};
 
 interface RealTimeData {
   vehicleTracking: any[];
@@ -82,6 +129,7 @@ export default function RealTimePage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
 
   useEffect(() => {
     fetchRealTimeData();
@@ -113,6 +161,10 @@ export default function RealTimePage() {
       setLoading(false);
       setRefreshing(false);
     }
+  };
+
+  const handleVehicleClick = (vehicle: any) => {
+    setSelectedVehicle(vehicle);
   };
 
   const MetricCard = ({ icon: Icon, title, value, unit, color, trend }: any) => (
@@ -326,11 +378,25 @@ export default function RealTimePage() {
               {realTimeData.vehicleTracking.length > 0 ? (
                 <div className="space-y-4">
                   {realTimeData.vehicleTracking.slice(0, 5).map((tracking, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div 
+                      key={index} 
+                      className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                        selectedVehicle?.id === tracking.id ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500' : ''
+                      }`}
+                      onClick={() => handleVehicleClick(tracking)}
+                    >
                       <div className="flex items-center gap-3">
                         <Truck className="h-5 w-5 text-blue-600" />
                         <div>
-                          <div className="font-medium">Vehicle {tracking.vehicleId.slice(-6)}</div>
+                          <div className="font-medium flex items-center gap-2">
+                            Vehicle {tracking.vehicleId.slice(-6)}
+                            {selectedVehicle?.id === tracking.id && (
+                              <Badge variant="secondary" className="text-xs">
+                                <Eye className="h-3 w-3 mr-1" />
+                                On Map
+                              </Badge>
+                            )}
+                          </div>
                           <div className="text-sm text-muted-foreground">
                             {tracking.speed}km/h • {tracking.status}
                           </div>
@@ -355,6 +421,71 @@ export default function RealTimePage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Interactive Map */}
+          {selectedVehicle && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Live Vehicle Location
+                </CardTitle>
+                <CardDescription>
+                  Vehicle {selectedVehicle.vehicleId.slice(-6)} - {selectedVehicle.name}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-96 rounded-lg overflow-hidden border">
+                  <MapContainer
+                    center={[selectedVehicle.location.lat, selectedVehicle.location.lng]}
+                    zoom={13}
+                    style={{ height: '100%', width: '100%' }}
+                    className="rounded-lg"
+                  >
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    />
+                    <Marker
+                      position={[selectedVehicle.location.lat, selectedVehicle.location.lng]}
+                      icon={createCustomIcon(selectedVehicle.status)}
+                    >
+                      <Popup>
+                        <div className="p-2">
+                          <h3 className="font-semibold">{selectedVehicle.name}</h3>
+                          <p className="text-sm text-gray-600">Driver: {selectedVehicle.driver}</p>
+                          <p className="text-sm text-gray-600">Speed: {selectedVehicle.speed} km/h</p>
+                          <p className="text-sm text-gray-600">Fuel: {selectedVehicle.fuel}%</p>
+                          <p className="text-sm text-gray-600">Status: {selectedVehicle.status}</p>
+                          <p className="text-sm text-gray-600">Route: {selectedVehicle.route}</p>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  </MapContainer>
+                </div>
+                <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Speed:</span>
+                      <div className="font-medium">{selectedVehicle.speed} km/h</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Fuel:</span>
+                      <div className="font-medium">{selectedVehicle.fuel}%</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Driver:</span>
+                      <div className="font-medium">{selectedVehicle.driver}</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Route:</span>
+                      <div className="font-medium">{selectedVehicle.route}</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="alerts" className="space-y-4">
@@ -477,6 +608,11 @@ export default function RealTimePage() {
           <div>Updates: Every 10 seconds</div>
           <div>Data Sources: {Object.values(integrationStatus).filter(Boolean).length}/10 Active</div>
           <div>Latency: {Math.floor(Math.random() * 50) + 20}ms</div>
+          {selectedVehicle && (
+            <div className="text-green-600 font-medium">
+              🗺️ Map: Vehicle {selectedVehicle.vehicleId.slice(-6)}
+            </div>
+          )}
         </div>
       </motion.div>
     </div>
