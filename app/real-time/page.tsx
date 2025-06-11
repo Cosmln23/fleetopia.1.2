@@ -428,48 +428,57 @@ export default function RealTimePage() {
             </CardContent>
           </Card>
 
-          {/* Interactive Map */}
-          {selectedVehicle && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Live Vehicle Location
-                </CardTitle>
-                <CardDescription>
-                  Vehicle {selectedVehicle.vehicleId.slice(-6)} - {selectedVehicle.name}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                                <div className="h-96 rounded-lg overflow-hidden border">
-                  <MapContainer
-                    key={selectedVehicle.id}
-                    center={[selectedVehicle.location.lat, selectedVehicle.location.lng]}
-                    zoom={13}
-                    style={{ height: '100%', width: '100%' }}
-                    className="rounded-lg"
-                    >
-                    <TileLayer
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    />
+                    {/* Interactive Map - Always Visible */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Fleet Vehicle Locations
+              </CardTitle>
+              <CardDescription>
+                {selectedVehicle 
+                  ? `Focused on: Vehicle ${selectedVehicle.vehicleId.slice(-6)} - ${selectedVehicle.name}`
+                  : 'Click on any vehicle above to focus on its location'
+                }
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-96 rounded-lg overflow-hidden border">
+                <MapContainer
+                  center={selectedVehicle 
+                    ? [selectedVehicle.location.lat, selectedVehicle.location.lng]
+                    : [45.7489, 21.2087] // Timișoara center as default
+                  }
+                  zoom={selectedVehicle ? 13 : 7}
+                  style={{ height: '100%', width: '100%' }}
+                  className="rounded-lg"
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  {/* Show all vehicles */}
+                  {realTimeData.vehicleTracking.map((vehicle, index) => (
                     <Marker
-                      position={[selectedVehicle.location.lat, selectedVehicle.location.lng]}
-                      icon={createCustomIcon(selectedVehicle.status)}
+                      key={index}
+                      position={[vehicle.location.lat, vehicle.location.lng]}
+                      icon={createCustomIcon(vehicle.status)}
                     >
                       <Popup>
                         <div className="p-2">
-                          <h3 className="font-semibold">{selectedVehicle.name}</h3>
-                          <p className="text-sm text-gray-600">Driver: {selectedVehicle.driver}</p>
-                          <p className="text-sm text-gray-600">Speed: {selectedVehicle.speed} km/h</p>
-                          <p className="text-sm text-gray-600">Fuel: {selectedVehicle.fuel}%</p>
-                          <p className="text-sm text-gray-600">Status: {selectedVehicle.status}</p>
-                          <p className="text-sm text-gray-600">Route: {selectedVehicle.route}</p>
+                          <h3 className="font-semibold">{vehicle.name}</h3>
+                          <p className="text-sm text-gray-600">Driver: {vehicle.driver}</p>
+                          <p className="text-sm text-gray-600">Speed: {vehicle.speed} km/h</p>
+                          <p className="text-sm text-gray-600">Fuel: {vehicle.fuel}%</p>
+                          <p className="text-sm text-gray-600">Status: {vehicle.status}</p>
+                          <p className="text-sm text-gray-600">Route: {vehicle.route}</p>
                         </div>
                       </Popup>
                     </Marker>
-                  </MapContainer>
-                </div>
+                  ))}
+                </MapContainer>
+              </div>
+              {selectedVehicle && (
                 <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
@@ -490,9 +499,9 @@ export default function RealTimePage() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="alerts" className="space-y-4">
