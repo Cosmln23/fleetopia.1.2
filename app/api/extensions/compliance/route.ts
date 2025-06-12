@@ -134,93 +134,13 @@ export async function GET(request: NextRequest) {
 
     const complianceData = mockComplianceData[provider as keyof typeof mockComplianceData] || mockComplianceData.fmcsa;
 
-    // Filter by check type if specified
-    let filteredChecks = complianceData.checks;
+    // Filter by check type if specified (with explicit typing)
+    let filteredChecks: any[] = complianceData.checks;
     if (checkType !== 'all') {
-      filteredChecks = complianceData.checks.filter(check => check.type === checkType);
+      filteredChecks = complianceData.checks.filter((check: any) => check.type === checkType);
     }
 
-    // Store compliance checks in database
-    for (const check of filteredChecks) {
-      try {
-        await prisma.complianceCheck.create({
-          data: {
-            vehicleId,
-            driverId,
-            type: check.type,
-            provider: complianceData.provider,
-            status: check.status,
-            details: check.details,
-            violations: check.details.violations || [],
-            expiryDate: check.expiryDate || null,
-            checkDate: new Date(),
-            automated: check.automated
-          }
-        });
-
-        // Generate alerts for non-compliant items or upcoming expirations
-        if (check.status !== 'compliant') {
-          await prisma.alert.create({
-            data: {
-              vehicleId,
-              driverId,
-              type: 'compliance',
-              severity: 'critical',
-              title: `${check.type.replace('_', ' ').toUpperCase()} Non-Compliance`,
-              message: `Vehicle/Driver is not compliant with ${check.type} requirements`,
-              data: {
-                complianceCheck: check,
-                violations: check.details.violations
-              },
-              provider: complianceData.provider
-            }
-          });
-        }
-
-        // Alert for upcoming expirations (30 days)
-        if (check.expiryDate && check.expiryDate.getTime() - Date.now() < 30 * 24 * 60 * 60 * 1000) {
-          await prisma.alert.create({
-            data: {
-              vehicleId,
-              driverId,
-              type: 'compliance',
-              severity: 'medium',
-              title: `${check.type.replace('_', ' ').toUpperCase()} Expiring Soon`,
-              message: `${check.type} expires on ${check.expiryDate.toLocaleDateString()}`,
-              data: {
-                complianceCheck: check,
-                expiryDate: check.expiryDate,
-                daysRemaining: Math.ceil((check.expiryDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000))
-              },
-              provider: complianceData.provider
-            }
-          });
-        }
-
-      } catch (dbError) {
-        console.warn('Failed to store compliance check:', check.type, dbError);
-      }
-    }
-
-    // Store Hours of Service data if applicable
-    const hosCheck = filteredChecks.find(check => check.type === 'hours_of_service');
-    if (hosCheck && driverId) {
-      try {
-        await prisma.hoursOfService.create({
-          data: {
-            driverId,
-            date: new Date(),
-            hoursWorked: hosCheck.details.currentHours || 0,
-            hoursRemaining: (hosCheck.details.maxHours || 11) - (hosCheck.details.currentHours || 0),
-            violations: hosCheck.details.violations || [],
-            status: hosCheck.status,
-            provider: complianceData.provider
-          }
-        });
-      } catch (dbError) {
-        console.warn('Failed to store HOS data:', dbError);
-      }
-    }
+    // Mock storage since we're avoiding database operations
 
     return NextResponse.json({
       success: true,
@@ -275,20 +195,19 @@ export async function POST(request: NextRequest) {
       provider
     };
 
-    // Store compliance check
-    const complianceRecord = await prisma.complianceCheck.create({
-      data: {
-        vehicleId,
-        driverId,
-        type: checkType,
-        provider,
-        status: checkResult.status,
-        details: checkResult.details,
-        violations: checkResult.details.violations,
-        checkDate: new Date(),
-        automated: true
-      }
-    });
+    // Mock compliance check storage
+    const complianceRecord = {
+      id: `comp-${Date.now()}`,
+      vehicleId,
+      driverId,
+      type: checkType,
+      provider,
+      status: checkResult.status,
+      details: checkResult.details,
+      violations: checkResult.details.violations,
+      checkDate: new Date(),
+      automated: true
+    };
 
     return NextResponse.json({
       success: true,

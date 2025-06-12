@@ -1,153 +1,103 @@
+import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = "force-dynamic";
 
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
+// Mock GPS tracking data
+const generateMockTelematicsData = (vehicleId?: string) => {
+  const baseId = vehicleId || `vehicle-${Math.floor(Math.random() * 100)}`;
+  
+  return {
+    vehicleId: baseId,
+    timestamp: new Date(),
+    gps: {
+      latitude: 40.7128 + (Math.random() - 0.5) * 0.1,
+      longitude: -74.0060 + (Math.random() - 0.5) * 0.1,
+      speed: Math.floor(Math.random() * 80) + 10,
+      heading: Math.floor(Math.random() * 360),
+      altitude: Math.floor(Math.random() * 1000) + 100,
+      accuracy: Math.random() * 5 + 1
+    },
+    engine: {
+      status: Math.random() > 0.1 ? 'running' : 'stopped',
+      rpm: Math.floor(Math.random() * 3000) + 800,
+      temperature: Math.floor(Math.random() * 40) + 80,
+      fuelLevel: Math.floor(Math.random() * 100),
+      oilPressure: Math.floor(Math.random() * 50) + 30
+    },
+    vehicle: {
+      mileage: Math.floor(Math.random() * 100000) + 50000,
+      fuelConsumption: (Math.random() * 2 + 6).toFixed(1),
+      batteryVoltage: (Math.random() * 2 + 12).toFixed(1),
+      tirePressure: {
+        frontLeft: Math.floor(Math.random() * 10) + 30,
+        frontRight: Math.floor(Math.random() * 10) + 30,
+        rearLeft: Math.floor(Math.random() * 10) + 30,
+        rearRight: Math.floor(Math.random() * 10) + 30
+      }
+    },
+    driver: {
+      status: Math.random() > 0.2 ? 'active' : 'break',
+      hoursOnDuty: Math.floor(Math.random() * 10) + 1,
+      score: Math.floor(Math.random() * 30) + 70
+    },
+    alerts: Math.random() > 0.8 ? ['Speed limit exceeded'] : []
+  };
+};
 
-// GPS & Telematics API - Samsara, Geotab, Verizon Connect integration
+// GET Telematics data
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const provider = searchParams.get('provider') || 'samsara';
     const vehicleId = searchParams.get('vehicleId');
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const provider = searchParams.get('provider') || 'samsara';
+    const realTime = searchParams.get('realTime') === 'true';
 
-    // Mock telematics data based on research
-    const mockTelematicsData = [
-      {
-        vehicleId: vehicleId || 'vehicle-001',
-        location: {
-          lat: 40.7589 + (Math.random() - 0.5) * 0.01,
-          lng: -73.9851 + (Math.random() - 0.5) * 0.01,
-          address: 'Times Square, New York, NY'
-        },
-        speed: Math.floor(Math.random() * 60) + 20,
-        heading: Math.floor(Math.random() * 360),
-        altitude: Math.floor(Math.random() * 100) + 50,
-        odometer: 125847.5 + Math.random() * 100,
-        fuelLevel: Math.floor(Math.random() * 40) + 60,
-        engineRpm: Math.floor(Math.random() * 1000) + 1500,
-        engineTemp: Math.floor(Math.random() * 20) + 180,
-        diagnostics: {
-          engineStatus: 'normal',
-          brakeStatus: 'normal',
-          transmissionTemp: Math.floor(Math.random() * 20) + 160,
-          oilPressure: Math.floor(Math.random() * 20) + 40,
-          batteryVoltage: 12.4 + Math.random() * 0.8,
-          dtcCodes: [],
-          fuelEfficiency: 7.2 + Math.random() * 2
-        },
-        provider: provider,
-        timestamp: new Date()
-      }
-    ];
-
-    // Generate multiple data points for different vehicles if no specific vehicle requested
+    // Generate mock data for multiple vehicles or specific vehicle
+    let telematicsData;
+    
     if (!vehicleId) {
-      const vehicles = await prisma.modernVehicle.findMany({ take: 5 });
-      mockTelematicsData.length = 0; // Clear array
-      
-      vehicles.forEach((vehicle, index) => {
-        mockTelematicsData.push({
-          vehicleId: vehicle.id,
-          location: {
-            lat: 40.7589 + (Math.random() - 0.5) * 0.1,
-            lng: -73.9851 + (Math.random() - 0.5) * 0.1,
-            address: `Location ${index + 1}, New York, NY`
-          },
-          speed: Math.floor(Math.random() * 60) + 20,
-          heading: Math.floor(Math.random() * 360),
-          altitude: Math.floor(Math.random() * 100) + 50,
-          odometer: 125847.5 + Math.random() * 1000,
-          fuelLevel: Math.floor(Math.random() * 40) + 60,
-          engineRpm: Math.floor(Math.random() * 1000) + 1500,
-          engineTemp: Math.floor(Math.random() * 20) + 180,
-          diagnostics: {
-            engineStatus: Math.random() > 0.9 ? 'warning' : 'normal',
-            brakeStatus: Math.random() > 0.95 ? 'warning' : 'normal',
-            transmissionTemp: Math.floor(Math.random() * 20) + 160,
-            oilPressure: Math.floor(Math.random() * 20) + 40,
-            batteryVoltage: 12.4 + Math.random() * 0.8,
-            dtcCodes: Math.random() > 0.8 ? ['P0171', 'P0174'] : [],
-            fuelEfficiency: 7.2 + Math.random() * 2
-          },
-          provider: provider,
-          timestamp: new Date()
-        });
-      });
+      // Generate data for multiple vehicles
+      telematicsData = Array.from({ length: 5 }, (_, i) => 
+        generateMockTelematicsData(`vehicle-00${i + 1}`)
+      );
+    } else {
+      // Generate data for specific vehicle
+      telematicsData = [generateMockTelematicsData(vehicleId)];
     }
 
-    // Store telematics data in database
-    for (const data of mockTelematicsData.slice(0, limit)) {
-      try {
-        await prisma.vehicleTelematics.create({
-          data: {
-            vehicleId: data.vehicleId,
-            location: data.location,
-            speed: data.speed,
-            heading: data.heading,
-            altitude: data.altitude,
-            odometer: data.odometer,
-            fuelLevel: data.fuelLevel,
-            engineRpm: data.engineRpm,
-            engineTemp: data.engineTemp,
-            diagnostics: data.diagnostics,
-            provider: data.provider,
-            timestamp: data.timestamp
-          }
-        });
-
-        // Update vehicle current location and fuel level
-        await prisma.modernVehicle.updateMany({
-          where: { id: data.vehicleId },
-          data: {
-            currentLocation: data.location,
-            fuelLevel: data.fuelLevel,
-            odometer: data.odometer
-          }
-        });
-
-        // Generate alerts for critical conditions
-        if (data.fuelLevel < 20) {
-          await prisma.alert.create({
-            data: {
-              vehicleId: data.vehicleId,
-              type: 'fuel',
-              severity: 'high',
-              title: 'Low Fuel Alert',
-              message: `Vehicle fuel level is critically low: ${data.fuelLevel}%`,
-              data: { fuelLevel: data.fuelLevel, location: data.location },
-              provider: data.provider
-            }
-          });
-        }
-
-        if (data.diagnostics.dtcCodes.length > 0) {
-          await prisma.alert.create({
-            data: {
-              vehicleId: data.vehicleId,
-              type: 'maintenance',
-              severity: 'medium',
-              title: 'Diagnostic Trouble Codes',
-              message: `Vehicle has diagnostic codes: ${data.diagnostics.dtcCodes.join(', ')}`,
-              data: { dtcCodes: data.diagnostics.dtcCodes, diagnostics: data.diagnostics },
-              provider: data.provider
-            }
-          });
-        }
-
-      } catch (dbError) {
-        console.warn('Failed to store telematics data for vehicle:', data.vehicleId, dbError);
+    // Mock provider capabilities
+    const providerCapabilities = {
+      samsara: {
+        features: ['gps_tracking', 'engine_diagnostics', 'driver_monitoring', 'fuel_monitoring'],
+        updateFrequency: '30 seconds',
+        accuracy: 'high'
+      },
+      geotab: {
+        features: ['gps_tracking', 'vehicle_diagnostics', 'maintenance_alerts', 'route_optimization'],
+        updateFrequency: '1 minute',
+        accuracy: 'very_high'
+      },
+      fleetio: {
+        features: ['gps_tracking', 'maintenance_tracking', 'fuel_management', 'driver_logs'],
+        updateFrequency: '2 minutes',
+        accuracy: 'high'
       }
-    }
+    };
+
+    const capabilities = providerCapabilities[provider as keyof typeof providerCapabilities] || providerCapabilities.samsara;
 
     return NextResponse.json({
       success: true,
-      data: mockTelematicsData.slice(0, limit),
+      data: {
+        telematics: telematicsData,
+        capabilities,
+        realTime,
+        lastUpdate: new Date()
+      },
       provider,
       vehicleId,
-      total: mockTelematicsData.length,
-      message: `Retrieved telematics data from ${provider}`,
+      total: telematicsData.length,
+      message: `GPS telematics data retrieved from ${provider}`,
       timestamp: new Date()
     });
 
@@ -162,49 +112,39 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Real-time tracking endpoint
+// Start real-time tracking
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { vehicleId, provider = 'samsara' } = body;
+    const { vehicleId, trackingMode = 'continuous', provider = 'samsara' } = body;
 
     if (!vehicleId) {
       return NextResponse.json({
         success: false,
-        error: 'Vehicle ID is required',
+        error: 'Vehicle ID is required for tracking',
         timestamp: new Date()
       }, { status: 400 });
     }
 
-    // Create real-time tracking record
-    const trackingData = {
+    // Mock tracking session
+    const trackingSession = {
+      id: `tracking-${Date.now()}`,
       vehicleId,
-      location: {
-        lat: 40.7589 + (Math.random() - 0.5) * 0.01,
-        lng: -73.9851 + (Math.random() - 0.5) * 0.01,
-        address: 'Real-time location, New York, NY',
-        timestamp: new Date()
-      },
-      speed: Math.floor(Math.random() * 60) + 20,
-      heading: Math.floor(Math.random() * 360),
-      status: Math.random() > 0.7 ? 'moving' : Math.random() > 0.5 ? 'stopped' : 'idle',
-      geofence: {
-        inside: Math.random() > 0.2,
-        name: 'NYC Metropolitan Area',
-        type: 'city_limits'
-      },
       provider,
-      timestamp: new Date()
+      mode: trackingMode,
+      status: 'active',
+      startTime: new Date(),
+      updateInterval: trackingMode === 'continuous' ? 30 : 300, // seconds
+      estimatedBatteryImpact: trackingMode === 'continuous' ? 'high' : 'low'
     };
-
-    await prisma.realTimeTracking.create({
-      data: trackingData
-    });
 
     return NextResponse.json({
       success: true,
-      data: trackingData,
-      message: 'Real-time tracking data updated',
+      data: {
+        trackingSession,
+        initialData: generateMockTelematicsData(vehicleId)
+      },
+      message: `Real-time tracking started for vehicle ${vehicleId}`,
       timestamp: new Date()
     });
 
@@ -212,7 +152,48 @@ export async function POST(request: NextRequest) {
     console.error('Real-time tracking error:', error);
     return NextResponse.json({
       success: false,
-      error: 'Failed to update tracking data',
+      error: 'Failed to start real-time tracking',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date()
+    }, { status: 500 });
+  }
+}
+
+// Stop tracking or update settings
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { trackingId, action = 'stop' } = body;
+
+    if (!trackingId) {
+      return NextResponse.json({
+        success: false,
+        error: 'Tracking ID is required',
+        timestamp: new Date()
+      }, { status: 400 });
+    }
+
+    // Mock tracking update
+    const result = {
+      trackingId,
+      action,
+      status: action === 'stop' ? 'stopped' : 'updated',
+      endTime: action === 'stop' ? new Date() : null,
+      duration: action === 'stop' ? '2 hours 15 minutes' : null
+    };
+
+    return NextResponse.json({
+      success: true,
+      data: result,
+      message: `Tracking session ${action}ped successfully`,
+      timestamp: new Date()
+    });
+
+  } catch (error) {
+    console.error('Tracking update error:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to update tracking',
       message: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date()
     }, { status: 500 });

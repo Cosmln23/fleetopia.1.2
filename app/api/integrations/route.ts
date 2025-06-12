@@ -110,10 +110,15 @@ export async function POST(request: NextRequest) {
         name,
         type,
         provider,
+        configuration: defaultSettings,
         credentials: {
           baseUrl,
           ...credentials,
           description
+        },
+        endpoints: {
+          baseUrl,
+          ...credentials
         },
         settings: defaultSettings,
         userId: user.id

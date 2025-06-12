@@ -14,14 +14,11 @@ export async function GET(request: NextRequest) {
 
     if (vehicleId) {
       // Get specific vehicle
-      const vehicle = await prisma.modernVehicle.findUnique({
+      const vehicle = await prisma.vehicle.findUnique({
         where: { id: vehicleId },
         include: {
-          telematics: include.includes('telematics'),
-          maintenanceRecords: include.includes('maintenance'),
-          fuelRecords: include.includes('fuel'),
-          modernTrips: include.includes('trips'),
-          alerts: include.includes('alerts')
+          maintenances: include.includes('maintenance'),
+          routes: include.includes('trips')
         }
       });
 
@@ -42,13 +39,11 @@ export async function GET(request: NextRequest) {
     } else {
       // Get vehicles for fleet
       const where = fleetId ? { fleetId } : {};
-      const vehicles = await prisma.modernVehicle.findMany({
+      const vehicles = await prisma.vehicle.findMany({
         where,
         include: {
-          telematics: include.includes('telematics') ? { take: 1, orderBy: { timestamp: 'desc' } } : false,
-          maintenanceRecords: include.includes('maintenance') ? { take: 5, orderBy: { serviceDate: 'desc' } } : false,
-          fuelRecords: include.includes('fuel') ? { take: 5, orderBy: { timestamp: 'desc' } } : false,
-          alerts: include.includes('alerts') ? { where: { resolved: false } } : false
+          maintenances: include.includes('maintenance') ? { take: 5, orderBy: { scheduledAt: 'desc' } } : false,
+          routes: include.includes('trips') ? { take: 5, orderBy: { createdAt: 'desc' } } : false
         },
         orderBy: { createdAt: 'desc' }
       });
@@ -79,35 +74,74 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { 
-      fleetId, 
-      vin, 
       licensePlate, 
-      make, 
-      model, 
-      year, 
-      type 
+      name, 
+      type,
+      fleetId = 'default',
+      status = 'active'
     } = body;
 
-    if (!fleetId || !vin || !licensePlate || !make || !model || !year || !type) {
+    console.log('Add vehicle request:', body);
+
+    if (!licensePlate || !name || !type) {
       return NextResponse.json({
         success: false,
-        error: 'All vehicle details are required',
+        error: 'License plate, name and type are required',
         timestamp: new Date()
       }, { status: 400 });
     }
 
-    const vehicle = await prisma.modernVehicle.create({
+    // Check if license plate already exists
+    const existingVehicle = await prisma.vehicle.findUnique({
+      where: { licensePlate }
+    });
+
+    if (existingVehicle) {
+      return NextResponse.json({
+        success: false,
+        error: 'Vehicle with this license plate already exists',
+        timestamp: new Date()
+      }, { status: 409 });
+    }
+
+    // Create fleet if it doesn't exist
+    let fleet = await prisma.fleet.findFirst({
+      where: { name: fleetId }
+    });
+
+    if (!fleet) {
+      // Get first user as default owner, or create default user
+      let firstUser = await prisma.user.findFirst();
+      
+      if (!firstUser) {
+        // Create default user for fleet management
+        firstUser = await prisma.user.create({
+          data: {
+            name: 'Fleet Manager',
+            email: 'fleet@fleetopia.co',
+            role: 'admin'
+          }
+        });
+      }
+
+      fleet = await prisma.fleet.create({
+        data: {
+          name: fleetId,
+          status: 'active',
+          userId: firstUser.id
+        }
+      });
+    }
+
+    const vehicle = await prisma.vehicle.create({
       data: {
-        fleetId,
-        vin,
-        licensePlate,
-        make,
-        model,
-        year,
+        fleetId: fleet.id,
+        name,
         type,
-        status: 'active',
+        licensePlate,
+        status,
         fuelLevel: 100,
-        odometer: 0
+        mileage: 0
       }
     });
 
@@ -153,13 +187,11 @@ export async function PUT(request: NextRequest) {
 
     const updateData: any = { updatedAt: new Date() };
     if (status) updateData.status = status;
-    if (currentLocation) updateData.currentLocation = currentLocation;
+    if (currentLocation) updateData.location = currentLocation;
     if (fuelLevel !== undefined) updateData.fuelLevel = fuelLevel;
-    if (odometer !== undefined) updateData.odometer = odometer;
-    if (lastMaintenance) updateData.lastMaintenance = new Date(lastMaintenance);
-    if (nextMaintenance) updateData.nextMaintenance = new Date(nextMaintenance);
+    if (odometer !== undefined) updateData.mileage = odometer;
 
-    const vehicle = await prisma.modernVehicle.update({
+    const vehicle = await prisma.vehicle.update({
       where: { id: vehicleId },
       data: updateData
     });
@@ -196,7 +228,7 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
 
-    await prisma.modernVehicle.delete({
+    await prisma.vehicle.delete({
       where: { id: vehicleId }
     });
 

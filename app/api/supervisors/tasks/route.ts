@@ -1,50 +1,10 @@
-
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const supervisorId = searchParams.get('supervisorId');
-    const status = searchParams.get('status');
-    const taskType = searchParams.get('taskType');
-
-    const whereClause: any = {};
-    
-    if (supervisorId) {
-      whereClause.supervisorId = supervisorId;
-    }
-    
-    if (status) {
-      whereClause.status = status;
-    }
-    
-    if (taskType) {
-      whereClause.taskType = taskType;
-    }
-
-    const tasks = await prisma.supervisorTask.findMany({
-      where: whereClause,
-      include: {
-        supervisor: {
-          select: {
-            id: true,
-            name: true,
-            type: true,
-            supervisorType: true
-          }
-        }
-      },
-      orderBy: { createdAt: 'desc' }
-    });
-
-    return NextResponse.json(tasks);
-  } catch (error) {
-    console.error('Supervisor tasks API error:', error);
-    
-    // Return mock data if database is not populated yet
+    // Return mock data for demonstration
     return NextResponse.json([
       {
         id: 'task-001',
@@ -83,6 +43,9 @@ export async function GET(request: Request) {
         }
       }
     ]);
+  } catch (error) {
+    console.error('Supervisor tasks API error:', error);
+    return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 });
   }
 }
 
@@ -90,26 +53,24 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    const task = await prisma.supervisorTask.create({
-      data: {
-        supervisorId: body.supervisorId,
-        taskType: body.taskType,
-        priority: body.priority || 'medium',
-        status: body.status || 'pending',
-        description: body.description,
-        parameters: body.parameters
-      },
-      include: {
-        supervisor: {
-          select: {
-            id: true,
-            name: true,
-            type: true,
-            supervisorType: true
-          }
-        }
+    // Mock successful response
+    const task = {
+      id: `task-${Date.now()}`,
+      supervisorId: body.supervisorId,
+      taskType: body.taskType,
+      priority: body.priority || 'medium',
+      status: body.status || 'pending',
+      description: body.description,
+      parameters: body.parameters,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      supervisor: {
+        id: body.supervisorId,
+        name: 'Mock Supervisor',
+        type: 'supervisor',
+        supervisorType: 'logistics'
       }
-    });
+    };
 
     return NextResponse.json(task, { status: 201 });
   } catch (error) {

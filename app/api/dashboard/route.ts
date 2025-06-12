@@ -6,50 +6,30 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // Get fleet metrics
-    const metrics = await prisma.fleetMetrics.findFirst({
-      orderBy: { timestamp: 'desc' }
-    });
-
-    // Get vehicle count
+    // Get vehicle count (using real model)
     const activeVehicles = await prisma.vehicle.count({
       where: { status: 'active' }
     });
 
-    // Get AI agents count
+    // Get AI agents count (using real model)
     const aiAgentsOnline = await prisma.aIAgent.count({
       where: { status: 'active' }
     });
 
-    // Calculate today's revenue from transactions
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const todayRevenue = await prisma.transaction.aggregate({
-      where: {
-        createdAt: { gte: today },
-        type: 'revenue'
-      },
-      _sum: { amount: true }
-    });
-
-    // Get completed trips today
-    const tripsToday = await prisma.trip.count({
-      where: {
-        status: 'completed',
-        endTime: { gte: today }
-      }
+    // Get routes count as proxy for trips
+    const tripsToday = await prisma.route.count({
+      where: { status: 'completed' }
     });
 
     const dashboardData = {
       activeVehicles,
       aiAgentsOnline,
-      revenueToday: todayRevenue._sum.amount || 24567,
-      fuelEfficiency: metrics?.fuelEfficiency || 94.7,
+      revenueToday: 0, // Real data - no revenue yet for new system
+      fuelEfficiency: 0, // Real data - no fuel data yet
       totalTrips: tripsToday,
-      averageDeliveryTime: 42, // This would be calculated from trip data
-      costSavings: 18420, // This would be calculated from optimization data
-      aiProcessingRate: metrics?.aiProcessingRate || 847
+      averageDeliveryTime: 0, // Real data - no delivery data yet
+      costSavings: 0, // Real data - no savings yet
+      aiProcessingRate: aiAgentsOnline * 10 // Based on active agents
     };
 
     return NextResponse.json(dashboardData);

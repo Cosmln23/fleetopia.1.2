@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (response.ok) {
-        // Update last sync time
+        // Update last successful test
         await prisma.aPIIntegration.update({
           where: { id: integrationId },
           data: { 

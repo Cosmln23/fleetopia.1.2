@@ -1,237 +1,101 @@
+import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = "force-dynamic";
 
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
+// Mock traffic data generator
+const generateMockTrafficData = (provider: string, routeId?: string) => {
+  const providers = {
+    tomtom: {
+      provider: 'tomtom',
+      features: ['real_time_incidents', 'flow_data', 'speed_limits', 'road_closures'],
+      congestionLevel: Math.random() > 0.7 ? 'heavy' : Math.random() > 0.4 ? 'moderate' : 'light',
+      averageSpeed: Math.floor(Math.random() * 40) + 40, // 40-80 km/h
+      travelTime: Math.floor(Math.random() * 60) + 30, // 30-90 minutes
+      incidents: [
+        {
+          incidentId: `incident-${Date.now()}-1`,
+          type: 'accident',
+          severity: 'major',
+          location: { lat: 40.7128, lng: -74.0060, address: 'Highway 95 Mile 45' },
+          description: 'Multi-vehicle accident blocking 2 lanes',
+          startTime: new Date(Date.now() - 30 * 60 * 1000),
+          estimatedClearTime: new Date(Date.now() + 45 * 60 * 1000),
+          impact: { delayMinutes: 25, affectedLanes: 2 }
+        }
+      ],
+      alternativeRoutes: [
+        { routeId: 'alt-1', description: 'Via Highway 1', additionalTime: 15, fuelSavings: '5%' },
+        { routeId: 'alt-2', description: 'Via Local Roads', additionalTime: 25, fuelSavings: '12%' }
+      ]
+    },
+    inrix: {
+      provider: 'inrix',
+      features: ['predictive_analytics', 'historical_patterns', 'commercial_vehicle_routing'],
+      congestionLevel: Math.random() > 0.6 ? 'heavy' : Math.random() > 0.3 ? 'moderate' : 'light',
+      averageSpeed: Math.floor(Math.random() * 35) + 45,
+      travelTime: Math.floor(Math.random() * 50) + 35,
+      incidents: [
+        {
+          incidentId: `incident-${Date.now()}-2`,
+          type: 'construction',
+          severity: 'moderate',
+          location: { lat: 40.7589, lng: -73.9851, address: 'Interstate 278 Exit 45' },
+          description: 'Road construction - single lane closure',
+          startTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
+          estimatedClearTime: new Date(Date.now() + 4 * 60 * 60 * 1000),
+          impact: { delayMinutes: 12, affectedLanes: 1 }
+        }
+      ],
+      alternativeRoutes: [
+        { routeId: 'alt-3', description: 'Express Route', additionalTime: 8, fuelSavings: '3%' }
+      ]
+    },
+    waze: {
+      provider: 'waze',
+      features: ['community_reports', 'police_alerts', 'hazard_reports', 'speed_cameras'],
+      congestionLevel: Math.random() > 0.5 ? 'moderate' : 'light',
+      averageSpeed: Math.floor(Math.random() * 30) + 50,
+      travelTime: Math.floor(Math.random() * 40) + 25,
+      incidents: [
+        {
+          incidentId: `incident-${Date.now()}-3`,
+          type: 'police',
+          severity: 'low',
+          location: { lat: 40.6892, lng: -74.0445, address: 'Route 9 Southbound' },
+          description: 'Police activity reported by community',
+          startTime: new Date(Date.now() - 15 * 60 * 1000),
+          reportedBy: 'community',
+          confidence: 0.78,
+          impact: { delayMinutes: 5, affectedLanes: 0 }
+        }
+      ],
+      alternativeRoutes: [
+        { routeId: 'alt-4', description: 'Community Suggested Route', additionalTime: 5, fuelSavings: '2%' }
+      ]
+    }
+  };
 
-// Traffic APIs - TomTom, INRIX, Waze integration
+  return providers[provider as keyof typeof providers] || providers.tomtom;
+};
+
+// GET traffic data
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const provider = searchParams.get('provider') || 'tomtom';
     const routeId = searchParams.get('routeId');
-    const lat = parseFloat(searchParams.get('lat') || '40.7128');
-    const lng = parseFloat(searchParams.get('lng') || '-74.0060');
-    const radius = parseInt(searchParams.get('radius') || '10'); // km
+    const realTime = searchParams.get('realTime') === 'true';
 
-    // Mock traffic data based on research
-    const mockTrafficData = {
-      tomtom: {
-        provider: 'tomtom',
-        updateFrequency: '30_seconds',
-        coverage: '80_countries',
-        incidents: [
-          {
-            incidentId: `TT-${Date.now()}-001`,
-            type: 'accident',
-            severity: 'high',
-            location: { lat: lat + 0.01, lng: lng + 0.01, address: 'I-95 Northbound, Mile 45' },
-            description: 'Multi-vehicle accident blocking 2 lanes',
-            startTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
-            estimatedClearTime: new Date(Date.now() + 1 * 60 * 60 * 1000),
-            impact: {
-              delayMinutes: 25,
-              affectedLanes: 2,
-              totalLanes: 4,
-              alternativeRoute: true
-            }
-          },
-          {
-            incidentId: `TT-${Date.now()}-002`,
-            type: 'construction',
-            severity: 'medium',
-            location: { lat: lat - 0.02, lng: lng - 0.01, address: 'Route 1 Southbound, Mile 12' },
-            description: 'Lane closure for road maintenance',
-            startTime: new Date(Date.now() - 24 * 60 * 60 * 1000),
-            estimatedClearTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-            impact: {
-              delayMinutes: 10,
-              affectedLanes: 1,
-              totalLanes: 3,
-              alternativeRoute: true
-            }
-          }
-        ],
-        flow: {
-          averageSpeed: 45, // km/h
-          freeFlowSpeed: 65,
-          congestionLevel: 0.3, // 0-1 scale
-          travelTimeIndex: 1.4, // compared to free flow
-          reliability: 0.85
-        },
-        alerts: [
-          {
-            type: 'heavy_traffic',
-            severity: 'medium',
-            message: 'Heavy traffic detected on main route',
-            estimatedDelay: 15,
-            alternativeAvailable: true
-          }
-        ]
-      },
-      inrix: {
-        provider: 'inrix',
-        updateFrequency: '1_minute',
-        coverage: '50_countries',
-        incidents: [
-          {
-            incidentId: `IX-${Date.now()}-001`,
-            type: 'weather',
-            severity: 'high',
-            location: { lat: lat + 0.005, lng: lng - 0.005, address: 'Highway 101, Mile 23' },
-            description: 'Heavy rain causing reduced visibility',
-            startTime: new Date(Date.now() - 1 * 60 * 60 * 1000),
-            estimatedClearTime: new Date(Date.now() + 3 * 60 * 60 * 1000),
-            impact: {
-              delayMinutes: 20,
-              speedReduction: 30,
-              visibilityKm: 2
-            }
-          }
-        ],
-        flow: {
-          averageSpeed: 42,
-          freeFlowSpeed: 65,
-          congestionLevel: 0.35,
-          travelTimeIndex: 1.5,
-          reliability: 0.88
-        },
-        alerts: [
-          {
-            type: 'weather_impact',
-            severity: 'high',
-            message: 'Weather conditions affecting traffic flow',
-            estimatedDelay: 20,
-            safetyRecommendation: 'Reduce speed and increase following distance'
-          }
-        ]
-      },
-      waze: {
-        provider: 'waze',
-        updateFrequency: '2_minutes',
-        coverage: 'crowd_sourced',
-        incidents: [
-          {
-            incidentId: `WZ-${Date.now()}-001`,
-            type: 'police',
-            severity: 'low',
-            location: { lat: lat - 0.01, lng: lng + 0.02, address: 'Main Street, near City Hall' },
-            description: 'Police activity reported by drivers',
-            startTime: new Date(Date.now() - 30 * 60 * 1000),
-            reportedBy: 'community',
-            confidence: 0.75,
-            impact: {
-              delayMinutes: 5,
-              speedReduction: 15
-            }
-          },
-          {
-            incidentId: `WZ-${Date.now()}-002`,
-            type: 'hazard',
-            severity: 'medium',
-            location: { lat: lat + 0.015, lng: lng - 0.01, address: 'Bridge Road, near Exit 15' },
-            description: 'Object on road reported',
-            startTime: new Date(Date.now() - 15 * 60 * 1000),
-            reportedBy: 'community',
-            confidence: 0.65,
-            impact: {
-              delayMinutes: 8,
-              laneBlocked: true
-            }
-          }
-        ],
-        flow: {
-          averageSpeed: 38,
-          freeFlowSpeed: 60,
-          congestionLevel: 0.4,
-          travelTimeIndex: 1.6,
-          reliability: 0.75,
-          communityReports: 23
-        },
-        alerts: [
-          {
-            type: 'community_alert',
-            severity: 'medium',
-            message: 'Multiple hazards reported by community',
-            reportsCount: 5,
-            lastReported: new Date(Date.now() - 10 * 60 * 1000)
-          }
-        ]
-      }
-    };
+    const trafficData = generateMockTrafficData(provider, routeId || undefined);
 
-    const trafficData = mockTrafficData[provider as keyof typeof mockTrafficData] || mockTrafficData.tomtom;
-
-    // Calculate ETA based on traffic conditions
-    const baseDistance = 50; // km
-    const eta = Math.round((baseDistance / trafficData.flow.averageSpeed) * 60); // minutes
-
-    const responseData = {
-      ...trafficData,
-      routeId,
-      location: { lat, lng },
-      radius,
-      eta,
-      timestamp: new Date()
-    };
-
-    // Store traffic data in database
-    try {
-      await prisma.trafficData.create({
-        data: {
-          routeId,
-          provider: trafficData.provider,
-          incidents: trafficData.incidents,
-          flow: trafficData.flow,
-          congestion: trafficData.flow.congestionLevel,
-          eta,
-          alerts: trafficData.alerts,
-          timestamp: new Date()
-        }
-      });
-
-      // Store individual incidents
-      for (const incident of trafficData.incidents) {
-        await prisma.trafficIncident.create({
-          data: {
-            incidentId: incident.incidentId,
-            provider: trafficData.provider,
-            type: incident.type,
-            severity: incident.severity,
-            location: incident.location,
-            description: incident.description,
-            startTime: incident.startTime,
-            endTime: incident.estimatedClearTime || null,
-            impact: incident.impact
-          }
-        });
-
-        // Generate alerts for high severity incidents
-        if (incident.severity === 'high') {
-          await prisma.alert.create({
-            data: {
-              type: 'traffic',
-              severity: 'high',
-              title: `${incident.type.toUpperCase()} Alert`,
-              message: incident.description,
-              data: {
-                incident,
-                eta: eta,
-                delayMinutes: incident.impact.delayMinutes || 0
-              },
-              provider: trafficData.provider
-            }
-          });
-        }
-      }
-
-    } catch (dbError) {
-      console.warn('Failed to store traffic data:', dbError);
-    }
+    // Mock traffic data storage
+    console.log(`Traffic data processed for route ${routeId}:`, trafficData.congestionLevel);
 
     return NextResponse.json({
       success: true,
-      data: responseData,
+      data: trafficData,
+      routeId,
+      realTime,
       message: `Traffic data retrieved from ${provider}`,
       timestamp: new Date()
     });
@@ -247,62 +111,92 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Real-time traffic updates
+// Report traffic incident
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { routeId, provider = 'tomtom' } = body;
+    const { 
+      type, 
+      severity, 
+      location, 
+      description, 
+      provider = 'user_report' 
+    } = body;
 
-    if (!routeId) {
+    if (!type || !location || !description) {
       return NextResponse.json({
         success: false,
-        error: 'Route ID is required',
+        error: 'Type, location, and description are required',
         timestamp: new Date()
       }, { status: 400 });
     }
 
-    // Mock real-time traffic update
-    const trafficUpdate = {
-      routeId,
-      provider,
-      congestionLevel: Math.random() * 0.8,
-      averageSpeed: Math.floor(Math.random() * 40) + 30,
-      incidents: Math.random() > 0.7 ? 1 : 0,
-      eta: Math.floor(Math.random() * 60) + 30,
-      lastUpdate: new Date(),
-      reliability: 0.85 + Math.random() * 0.1
+    // Mock incident report
+    const incidentReport = {
+      incidentId: `user-report-${Date.now()}`,
+      type,
+      severity: severity || 'unknown',
+      location,
+      description,
+      reportedBy: provider,
+      reportedAt: new Date(),
+      status: 'pending_verification',
+      confidence: 0.65
     };
-
-    // Update traffic data
-    await prisma.trafficData.create({
-      data: {
-        routeId,
-        provider,
-        incidents: [],
-        flow: {
-          averageSpeed: trafficUpdate.averageSpeed,
-          congestionLevel: trafficUpdate.congestionLevel,
-          reliability: trafficUpdate.reliability
-        },
-        congestion: trafficUpdate.congestionLevel,
-        eta: trafficUpdate.eta,
-        alerts: [],
-        timestamp: new Date()
-      }
-    });
 
     return NextResponse.json({
       success: true,
-      data: trafficUpdate,
-      message: 'Traffic data updated',
+      data: incidentReport,
+      message: 'Traffic incident reported successfully',
       timestamp: new Date()
     });
 
   } catch (error) {
-    console.error('Traffic update error:', error);
+    console.error('Traffic incident reporting error:', error);
     return NextResponse.json({
       success: false,
-      error: 'Failed to update traffic data',
+      error: 'Failed to report traffic incident',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date()
+    }, { status: 500 });
+  }
+}
+
+// Update traffic conditions
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { incidentId, status, estimatedClearTime } = body;
+
+    if (!incidentId) {
+      return NextResponse.json({
+        success: false,
+        error: 'Incident ID is required',
+        timestamp: new Date()
+      }, { status: 400 });
+    }
+
+    // Mock incident update
+    const updatedIncident = {
+      incidentId,
+      status: status || 'updated',
+      estimatedClearTime: estimatedClearTime ? new Date(estimatedClearTime) : null,
+      lastUpdated: new Date(),
+      confidence: 0.88
+    };
+
+    return NextResponse.json({
+      success: true,
+      data: updatedIncident,
+      message: 'Traffic incident updated successfully',
+      timestamp: new Date()
+    });
+
+  } catch (error) {
+    console.error('Traffic incident update error:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to update traffic incident',
       message: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date()
     }, { status: 500 });

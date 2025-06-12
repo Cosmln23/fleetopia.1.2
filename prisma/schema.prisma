@@ -102,6 +102,31 @@ model AIAgent {
   @@map("ai_agents")
 }
 
+// Alternative naming for API compatibility
+model aIAgent {
+  id            String   @id @default(cuid())
+  name          String
+  description   String
+  version       String   @default("1.0.0")
+  category      String   @default("general")
+  capabilities  Json     @default("{}")
+  configuration Json     @default("{}")
+  performance   Json     @default("{}")
+  marketplace   Boolean  @default(false)
+  price         Float?
+  rating        Float    @default(0)
+  downloads     Int      @default(0)
+  status        String   @default("active")
+  isTemplate    Boolean  @default(false)
+  requiresAPI   Json     @default("{}")
+  userId        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([marketplace])
+  @@index([category])
+}
+
 model Fleet {
   id        String    @id @default(cuid())
   name      String
@@ -195,6 +220,30 @@ model APIIntegration {
   @@index([provider])
 }
 
+// Alternative naming for API compatibility
+model aPIIntegration {
+  id            String   @id @default(cuid())
+  name          String
+  type          String
+  provider      String
+  configuration Json     @default("{}")
+  credentials   Json     @default("{}")
+  endpoints     Json     @default("{}")
+  headers       Json?
+  settings      Json?
+  description   String?
+  documentation String?
+  status        String   @default("active")
+  lastSync      DateTime?
+  lastError     String?
+  userId        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([type])
+  @@index([provider])
+}
+
 model Review {
   id        String   @id @default(cuid())
   rating    Float
@@ -283,4 +332,559 @@ model AgentAPIConnection {
   @@index([agentId])
   @@index([apiId])
   @@index([userId])
+}
+
+// ADDED MISSING MODELS FOR API COMPATIBILITY
+
+// Evolution logging for AI agents
+model evolutionLog {
+  id            String   @id @default(cuid())
+  agentId       String
+  action        String
+  data          Json     @default("{}")
+  performance   Json     @default("{}")
+  timestamp     DateTime @default(now())
+  userId        String?
+  createdAt     DateTime @default(now())
+
+  @@index([agentId])
+  @@index([timestamp])
+}
+
+// Modern fleet management models
+model modernDriver {
+  id              String   @id @default(cuid())
+  firstName       String
+  lastName        String
+  email           String   @unique
+  phone           String?
+  licenseNumber   String   @unique
+  licenseExpiry   DateTime
+  status          String   @default("active")
+  currentLocation Json?
+  hoursWorked     Float    @default(0)
+  fleetId         String?
+  modernTrips     modernTrip[]
+  alerts          alert[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([fleetId])
+  @@index([status])
+}
+
+model modernVehicle {
+  id              String   @id @default(cuid())
+  name            String
+  type            String
+  licensePlate    String   @unique
+  status          String   @default("active")
+  location        Json?
+  fuelLevel       Float?
+  mileage         Float?
+  fleetId         String?
+  modernTrips     modernTrip[]
+  vehicleTelematics vehicleTelematics[]
+  realTimeTracking realTimeTracking[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([fleetId])
+  @@index([status])
+}
+
+model modernRoute {
+  id            String   @id @default(cuid())
+  name          String
+  startPoint    Json
+  endPoint      Json
+  waypoints     Json?
+  distance      Float?
+  duration      Float?
+  status        String   @default("planned")
+  optimized     Boolean  @default(false)
+  fleetId       String?
+  modernTrips   modernTrip[]
+  routeOptimization routeOptimization[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([fleetId])
+  @@index([status])
+}
+
+model modernTrip {
+  id           String   @id @default(cuid())
+  startTime    DateTime
+  endTime      DateTime?
+  status       String   @default("active")
+  distance     Float?
+  fuelUsed     Float?
+  driverId     String?
+  vehicleId    String?
+  routeId      String?
+  driver       modernDriver? @relation(fields: [driverId], references: [id])
+  vehicle      modernVehicle? @relation(fields: [vehicleId], references: [id])
+  route        modernRoute? @relation(fields: [routeId], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@index([driverId])
+  @@index([vehicleId])
+  @@index([routeId])
+}
+
+// Digital twin models
+model digitalTwin {
+  id            String   @id @default(cuid())
+  entityId      String   // ID of the real entity (vehicle, driver, etc.)
+  entityType    String   // "vehicle", "driver", "route"
+  data          Json     @default("{}")
+  predictions   Json     @default("{}")
+  performance   Json     @default("{}")
+  lastSync      DateTime @default(now())
+  accuracy      Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([entityId])
+  @@index([entityType])
+}
+
+// Protocol validation
+model protocolValidation {
+  id            String   @id @default(cuid())
+  protocol      String
+  version       String
+  status        String   @default("pending")
+  score         Float    @default(0)
+  data          Json     @default("{}")
+  errors        Json?
+  validatedAt   DateTime @default(now())
+  agentId       String?
+  createdAt     DateTime @default(now())
+
+  @@index([protocol])
+  @@index([status])
+  @@index([agentId])
+}
+
+// Paradise metrics
+model paradiseMetric {
+  id            String   @id @default(cuid())
+  metricType    String
+  value         Float    @default(0)
+  data          Json     @default("{}")
+  timestamp     DateTime @default(now())
+  agentId       String?
+  userId        String?
+  createdAt     DateTime @default(now())
+
+  @@index([metricType])
+  @@index([timestamp])
+  @@index([agentId])
+}
+
+// Marketplace contributions
+model marketplaceContribution {
+  id            String   @id @default(cuid())
+  contributorId String
+  type          String
+  title         String
+  description   String?
+  data          Json     @default("{}")
+  impact        Float    @default(0)
+  status        String   @default("active")
+  downloads     Int      @default(0)
+  rating        Float    @default(0)
+  agentId       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([contributorId])
+  @@index([type])
+  @@index([status])
+}
+
+// System configuration
+model systemConfig {
+  id            String   @id @default(cuid())
+  key           String   @unique
+  value         Json
+  description   String?
+  category      String   @default("general")
+  isPublic      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([category])
+  @@index([isPublic])
+}
+
+// Modern API integrations
+model modernApiIntegration {
+  id            String   @id @default(cuid())
+  name          String
+  type          String
+  provider      String
+  configuration Json     @default("{}")
+  status        String   @default("active")
+  data          Json     @default("{}")
+  lastSync      DateTime?
+  userId        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([type])
+  @@index([status])
+}
+
+// Weather data
+model weatherData {
+  id            String   @id @default(cuid())
+  location      Json
+  provider      String
+  current       Json     @default("{}")
+  forecast      Json?
+  alerts        Json?
+  roadRisk      Float    @default(0)
+  visibility    Float    @default(10)
+  timestamp     DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@index([provider])
+  @@index([timestamp])
+}
+
+// Traffic data
+model trafficData {
+  id            String   @id @default(cuid())
+  routeId       String?
+  provider      String
+  data          Json     @default("{}")
+  congestion    String   @default("light")
+  incidents     Json?
+  timestamp     DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@index([routeId])
+  @@index([provider])
+  @@index([timestamp])
+}
+
+model trafficIncident {
+  id            String   @id @default(cuid())
+  type          String
+  severity      String   @default("low")
+  location      Json
+  description   String
+  status        String   @default("active")
+  startTime     DateTime @default(now())
+  endTime       DateTime?
+  impact        Json?
+  reportedBy    String?
+  createdAt     DateTime @default(now())
+
+  @@index([type])
+  @@index([severity])
+  @@index([status])
+}
+
+// Generic alert system
+model alert {
+  id            String   @id @default(cuid())
+  type          String
+  severity      String   @default("medium")
+  title         String
+  message       String
+  data          Json?
+  status        String   @default("active")
+  resolved      Boolean  @default(false)
+  resolvedAt    DateTime?
+  userId        String?
+  driverId      String?
+  vehicleId     String?
+  agentId       String?
+  provider      String?
+  driver        modernDriver? @relation(fields: [driverId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([type])
+  @@index([severity])
+  @@index([status])
+  @@index([resolved])
+}
+
+// Additional models for specific APIs
+
+// Fuel management
+model fuelStation {
+  id            String   @id @default(cuid())
+  name          String
+  location      Json
+  provider      String
+  prices        Json     @default("{}")
+  amenities     Json?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([provider])
+  @@index([isActive])
+}
+
+model fuelPrice {
+  id            String   @id @default(cuid())
+  stationId     String
+  fuelType      String
+  price         Float
+  timestamp     DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@index([stationId])
+  @@index([fuelType])
+  @@index([timestamp])
+}
+
+// Telematics
+model vehicleTelematics {
+  id            String   @id @default(cuid())
+  vehicleId     String
+  data          Json     @default("{}")
+  speed         Float?
+  location      Json?
+  fuelLevel     Float?
+  engineStatus  String?
+  timestamp     DateTime @default(now())
+  vehicle       modernVehicle @relation(fields: [vehicleId], references: [id])
+  createdAt     DateTime @default(now())
+
+  @@index([vehicleId])
+  @@index([timestamp])
+}
+
+model realTimeTracking {
+  id            String   @id @default(cuid())
+  vehicleId     String
+  location      Json
+  speed         Float?
+  heading       Float?
+  timestamp     DateTime @default(now())
+  vehicle       modernVehicle @relation(fields: [vehicleId], references: [id])
+  createdAt     DateTime @default(now())
+
+  @@index([vehicleId])
+  @@index([timestamp])
+}
+
+// Maintenance
+model maintenanceRecord {
+  id            String   @id @default(cuid())
+  vehicleId     String?
+  type          String
+  description   String?
+  cost          Float?
+  scheduledAt   DateTime
+  completedAt   DateTime?
+  status        String   @default("scheduled")
+  data          Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([vehicleId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model predictiveMaintenance {
+  id            String   @id @default(cuid())
+  vehicleId     String?
+  component     String
+  prediction    Json     @default("{}")
+  probability   Float    @default(0)
+  recommendedAction String?
+  priority      String   @default("medium")
+  dueDate       DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([vehicleId])
+  @@index([priority])
+  @@index([dueDate])
+}
+
+// Route optimization
+model routeOptimization {
+  id            String   @id @default(cuid())
+  routeId       String?
+  originalRoute Json
+  optimizedRoute Json
+  savings       Json?
+  efficiency    Float    @default(0)
+  status        String   @default("completed")
+  route         modernRoute? @relation(fields: [routeId], references: [id])
+  createdAt     DateTime @default(now())
+
+  @@index([routeId])
+  @@index([status])
+}
+
+// Freight matching
+model freightLoad {
+  id            String   @id @default(cuid())
+  origin        Json
+  destination   Json
+  weight        Float?
+  volume        Float?
+  type          String
+  status        String   @default("available")
+  price         Float?
+  pickupDate    DateTime?
+  deliveryDate  DateTime?
+  requirements  Json?
+  loadBids      loadBid[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([type])
+  @@index([pickupDate])
+}
+
+model loadBid {
+  id            String   @id @default(cuid())
+  loadId        String
+  carrierId     String
+  price         Float
+  estimatedTime Float?
+  notes         String?
+  status        String   @default("pending")
+  load          freightLoad @relation(fields: [loadId], references: [id])
+  createdAt     DateTime @default(now())
+
+  @@index([loadId])
+  @@index([carrierId])
+  @@index([status])
+}
+
+// Financial tracking
+model financialTransaction {
+  id            String   @id @default(cuid())
+  type          String
+  amount        Float
+  currency      String   @default("RON")
+  description   String?
+  category      String
+  date          DateTime @default(now())
+  status        String   @default("completed")
+  data          Json?
+  createdAt     DateTime @default(now())
+
+  @@index([type])
+  @@index([category])
+  @@index([date])
+  @@index([status])
+}
+
+model invoice {
+  id            String   @id @default(cuid())
+  number        String   @unique
+  amount        Float
+  currency      String   @default("RON")
+  status        String   @default("pending")
+  issueDate     DateTime @default(now())
+  dueDate       DateTime
+  paidDate      DateTime?
+  clientData    Json
+  items         Json     @default("[]")
+  createdAt     DateTime @default(now())
+
+  @@index([status])
+  @@index([issueDate])
+  @@index([dueDate])
+}
+
+model expenseReport {
+  id            String   @id @default(cuid())
+  title         String
+  totalAmount   Float
+  currency      String   @default("RON")
+  period        String
+  status        String   @default("draft")
+  expenses      Json     @default("[]")
+  approvedBy    String?
+  approvedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([period])
+}
+
+// Communication
+model notification {
+  id            String   @id @default(cuid())
+  type          String
+  title         String
+  message       String
+  data          Json?
+  status        String   @default("unread")
+  priority      String   @default("medium")
+  userId        String?
+  createdAt     DateTime @default(now())
+  readAt        DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([priority])
+}
+
+model communicationLog {
+  id            String   @id @default(cuid())
+  type          String
+  direction     String   // "inbound", "outbound"
+  content       String
+  metadata      Json?
+  status        String   @default("sent")
+  userId        String?
+  createdAt     DateTime @default(now())
+
+  @@index([type])
+  @@index([direction])
+  @@index([status])
+  @@index([userId])
+}
+
+// Compliance
+model complianceCheck {
+  id            String   @id @default(cuid())
+  type          String
+  status        String   @default("pending")
+  score         Float    @default(0)
+  data          Json     @default("{}")
+  issues        Json?
+  checkedAt     DateTime @default(now())
+  validUntil    DateTime?
+  entityId      String?  // vehicle, driver, etc.
+  entityType    String?
+  createdAt     DateTime @default(now())
+
+  @@index([type])
+  @@index([status])
+  @@index([entityId])
+}
+
+model hoursOfService {
+  id            String   @id @default(cuid())
+  driverId      String
+  date          DateTime
+  hoursWorked   Float    @default(0)
+  breakTime     Float    @default(0)
+  status        String   @default("compliant")
+  violations    Json?
+  createdAt     DateTime @default(now())
+
+  @@index([driverId])
+  @@index([date])
+  @@index([status])
 }

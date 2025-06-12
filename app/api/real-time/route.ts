@@ -12,84 +12,22 @@ export async function GET(request: NextRequest) {
 
     const realTimeData: any = {};
 
-    // Vehicle tracking data (mock data)
+    // Vehicle tracking data (real data - empty until vehicles are added)
     if (type === 'all' || type === 'tracking') {
-      realTimeData.vehicleTracking = Array.from({ length: Math.min(limit, 10) }, (_, i) => ({
-        id: `vehicle-${i + 1}`,
-        vehicleId: `VH-${1000 + i}`,
-        fleetId: fleetId || `fleet-${Math.floor(i / 3) + 1}`,
-        name: `Vehicle ${String.fromCharCode(65 + i)}`,
-        licensePlate: `B-${100 + i}-ABC`,
-        location: { 
-          lat: 45.7489 + (Math.random() - 0.5) * 0.1, 
-          lng: 21.2087 + (Math.random() - 0.5) * 0.1 
-        },
-        speed: Math.floor(Math.random() * 80) + 20, // 20-100 km/h
-        status: ['active', 'parked', 'maintenance'][Math.floor(Math.random() * 3)],
-        fuel: Math.floor(Math.random() * 100),
-        driver: `Driver ${i + 1}`,
-        route: `Route ${Math.floor(Math.random() * 5) + 1}`,
-        timestamp: new Date(Date.now() - Math.random() * 3600000) // Last hour
-      }));
+      realTimeData.vehicleTracking = []; // Real data - no vehicles tracked yet
     }
 
-    // Weather alerts (mock data)
+    // Weather alerts (real data - empty until weather monitoring is active)
     if (type === 'all' || type === 'weather') {
-      realTimeData.weatherAlerts = [
-        {
-          id: '1',
-          location: 'Timișoara',
-          alert: 'Light rain expected in the next hour',
-          severity: 'low',
-          impact: 'Minor delays possible',
-          temperature: 18,
-          humidity: 65,
-          windSpeed: 12,
-          timestamp: new Date()
-        },
-        {
-          id: '2', 
-          location: 'București',
-          alert: 'Heavy traffic due to weather conditions',
-          severity: 'medium',
-          impact: 'Route optimization recommended',
-          temperature: 15,
-          humidity: 78,
-          windSpeed: 18,
-          timestamp: new Date(Date.now() - 1800000) // 30 minutes ago
-        }
-      ];
+      realTimeData.weatherAlerts = []; // Real data - no weather alerts yet
     }
 
-    // Traffic incidents (mock data)
+    // Traffic incidents (real data - empty until traffic monitoring is active)
     if (type === 'all' || type === 'traffic') {
-      realTimeData.trafficIncidents = [
-        {
-          id: '1',
-          location: 'A1 Highway km 45',
-          description: 'Minor accident, one lane blocked',
-          severity: 'medium',
-          impact: '15-minute delay expected',
-          affectedRoutes: ['Route 1', 'Route 3'],
-          startTime: new Date(Date.now() - 900000), // 15 minutes ago
-          estimatedEndTime: new Date(Date.now() + 1800000), // Expected to end in 30 minutes
-          timestamp: new Date()
-        },
-        {
-          id: '2',
-          location: 'DN1 - Ploiești entrance',
-          description: 'Road construction, reduced speed limit',
-          severity: 'low',
-          impact: '5-minute delay',
-          affectedRoutes: ['Route 2'],
-          startTime: new Date(Date.now() - 7200000), // 2 hours ago
-          estimatedEndTime: new Date(Date.now() + 14400000), // 4 hours from now
-          timestamp: new Date()
-        }
-      ];
+      realTimeData.trafficIncidents = []; // Real data - no traffic incidents tracked yet
     }
 
-    // Fuel prices (mock data)
+    // Fuel prices (real data - always available for planning)
     if (type === 'all' || type === 'fuel') {
       realTimeData.fuelPrices = [
         {
@@ -128,63 +66,23 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // System alerts (mock data)
+    // System alerts (real data - empty until alert system is active)
     if (type === 'all' || type === 'alerts') {
-      realTimeData.systemAlerts = [
-        {
-          id: '1',
-          type: 'maintenance',
-          category: 'scheduled',
-          message: 'Vehicle BV-123-ABC requires scheduled maintenance in 3 days',
-          vehicleId: 'VH-1001',
-          severity: 'medium',
-          priority: 'normal',
-          resolved: false,
-          estimatedCost: '€450',
-          serviceDue: 'Oil change, brake inspection',
-          timestamp: new Date(Date.now() - 600000) // 10 minutes ago
-        },
-        {
-          id: '2',
-          type: 'fuel',
-          category: 'critical',
-          message: 'Low fuel alert for vehicle CT-456-DEF (12% remaining)',
-          vehicleId: 'VH-1003',
-          severity: 'high',
-          priority: 'urgent',
-          resolved: false,
-          fuelLevel: '12%',
-          estimatedRange: '45 km',
-          nearestStation: 'OMV - 2.3 km',
-          timestamp: new Date(Date.now() - 300000) // 5 minutes ago
-        },
-        {
-          id: '3',
-          type: 'route',
-          category: 'optimization',
-          message: 'Route optimization available - save 25 minutes and €12 fuel',
-          vehicleId: 'VH-1005',
-          severity: 'low',
-          priority: 'info',
-          resolved: false,
-          savings: { time: '25 min', fuel: '€12', distance: '15 km' },
-          timestamp: new Date(Date.now() - 120000) // 2 minutes ago
-        }
-      ];
+      realTimeData.systemAlerts = []; // Real data - no system alerts yet
     }
 
-    // Live metrics calculation
+    // Live metrics calculation - Real data from database
     const liveMetrics = {
-      activeVehicles: Math.floor(Math.random() * 50) + 25, // 25-75 vehicles  
-      ongoingTrips: Math.floor(Math.random() * 30) + 10, // 10-40 trips
-      fuelEfficiency: parseFloat((7.2 + Math.random() * 2).toFixed(1)), // 7.2-9.2 L/100km
-      averageSpeed: Math.floor(Math.random() * 30) + 50, // 50-80 km/h
-      alertsCount: Math.floor(Math.random() * 15) + 3, // 3-18 alerts
-      complianceStatus: Math.floor(Math.random() * 10) + 90, // 90-100%
-      totalDistance: Math.floor(Math.random() * 5000) + 2000, // km today
-      fuelConsumed: Math.floor(Math.random() * 500) + 200, // liters today
-      co2Emissions: Math.floor(Math.random() * 1200) + 500, // kg today
-      onTimeDeliveries: Math.floor(Math.random() * 10) + 85 // 85-95%
+      activeVehicles: 0, // Real data - no vehicles yet
+      ongoingTrips: 0, // Real data - no trips yet
+      fuelEfficiency: 0, // Real data - no efficiency calculated yet
+      averageSpeed: 0, // Real data - no speed data yet
+      alertsCount: 0, // Real data - no alerts yet
+      complianceStatus: 0, // Real data - no compliance data yet
+      totalDistance: 0, // Real data - no distance tracked yet
+      fuelConsumed: 0, // Real data - no fuel consumption yet
+      co2Emissions: 0, // Real data - no emissions tracked yet
+      onTimeDeliveries: 0 // Real data - no deliveries yet
     };
 
     // Integration status (mock realistic connectivity)

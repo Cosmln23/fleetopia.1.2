@@ -128,7 +128,8 @@ export async function GET(request: NextRequest) {
     // Store route optimization if applicable
     if (optimize) {
       try {
-        await prisma.routeOptimization.create({
+        // Mock route optimization storage
+        console.log('Route optimization stored:', {
           data: {
             algorithm: 'ai_powered',
             originalRoute: {

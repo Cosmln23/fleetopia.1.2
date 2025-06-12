@@ -96,13 +96,12 @@ export async function POST(request: NextRequest) {
       data: {
         fleetId,
         name,
-        origin,
-        destination,
+        startPoint: origin,
+        endPoint: destination,
         waypoints,
         distance: mockDistance,
         duration: mockDuration,
         optimized: false,
-        provider,
         status: 'planned'
       }
     });
@@ -149,8 +148,8 @@ export async function PUT(request: NextRequest) {
 
     const updateData: any = { updatedAt: new Date() };
     if (name) updateData.name = name;
-    if (origin) updateData.origin = origin;
-    if (destination) updateData.destination = destination;
+    if (origin) updateData.startPoint = origin;
+    if (destination) updateData.endPoint = destination;
     if (waypoints) updateData.waypoints = waypoints;
     if (status) updateData.status = status;
     if (optimized !== undefined) updateData.optimized = optimized;

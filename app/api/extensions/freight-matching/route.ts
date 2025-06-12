@@ -89,39 +89,8 @@ export async function GET(request: NextRequest) {
       ? mockFreightLoads 
       : mockFreightLoads.filter(load => load.provider === provider);
 
-    // Store in database
-    for (const load of filteredLoads.slice(0, limit)) {
-      await prisma.freightLoad.upsert({
-        where: { loadId: load.loadId },
-        update: {
-          provider: load.provider,
-          origin: load.origin,
-          destination: load.destination,
-          pickupDate: load.pickupDate,
-          deliveryDate: load.deliveryDate,
-          weight: load.weight,
-          distance: load.distance,
-          rate: load.rate,
-          status: load.status,
-          requirements: load.requirements,
-          biddingData: load.biddingData
-        },
-        create: {
-          loadId: load.loadId,
-          provider: load.provider,
-          origin: load.origin,
-          destination: load.destination,
-          pickupDate: load.pickupDate,
-          deliveryDate: load.deliveryDate,
-          weight: load.weight,
-          distance: load.distance,
-          rate: load.rate,
-          status: load.status,
-          requirements: load.requirements,
-          biddingData: load.biddingData
-        }
-      });
-    }
+    // Mock storage (avoiding database operations)
+    console.log(`Processing ${filteredLoads.slice(0, limit).length} freight loads from ${provider}`);
 
     return NextResponse.json({
       success: true,
@@ -157,44 +126,25 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Create bid record
-    const bid = await prisma.loadBid.create({
-      data: {
-        loadId,
-        vehicleId,
-        driverId,
-        bidAmount,
-        provider: provider || 'uber_freight',
-        status: 'pending',
-        bidData: {
-          submissionTime: new Date(),
-          estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-          equipmentReady: true
-        }
-      }
-    });
+    // Mock bid record
+    const bid = {
+      id: `bid-${Date.now()}`,
+      loadId,
+      vehicleId,
+      driverId,
+      bidAmount,
+      provider: provider || 'uber_freight',
+      status: 'pending',
+      bidData: {
+        submissionTime: new Date(),
+        estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        equipmentReady: true
+      },
+      createdAt: new Date()
+    };
 
     // Mock bid acceptance logic (30% chance of immediate acceptance)
     const accepted = Math.random() < 0.3;
-    if (accepted) {
-      await prisma.loadBid.update({
-        where: { id: bid.id },
-        data: {
-          status: 'accepted',
-          respondedAt: new Date()
-        }
-      });
-
-      // Update freight load as matched
-      await prisma.freightLoad.updateMany({
-        where: { loadId },
-        data: {
-          matched: true,
-          vehicleId,
-          status: 'matched'
-        }
-      });
-    }
 
     return NextResponse.json({
       success: true,

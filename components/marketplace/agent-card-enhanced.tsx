@@ -19,7 +19,7 @@ interface EnhancedAIAgent {
   description: string;
   version: string;
   category: string;
-  capabilities: string[];
+  capabilities: string[] | any;
   marketplace: boolean;
   price?: number;
   rating: number;
@@ -29,16 +29,20 @@ interface EnhancedAIAgent {
     speed: number;
     reliability: number;
     security: number;
-  };
+  } | any;
   status: 'active' | 'inactive' | 'pending';
-  isTemplate: boolean;
-  requiresAPI: string[];
-  owner: {
+  isTemplate?: boolean;
+  requiresAPI: string[] | any;
+  owner?: {
     name: string;
     verified: boolean;
   };
-  lastUpdated: Date;
-  validationScore: number;
+  createdBy?: {
+    name: string;
+    email?: string;
+  };
+  lastUpdated?: Date;
+  validationScore?: number;
   connectedAPIs?: number;
   activeConnections?: number;
   comingSoon?: boolean;
@@ -48,6 +52,7 @@ interface AgentCardEnhancedProps {
   agent: EnhancedAIAgent;
   view: 'marketplace' | 'my-agents' | 'connected';
   onDownload?: (agentId: string) => void;
+  onBuy?: (agent: EnhancedAIAgent) => void;
   onConnect?: (agentId: string) => void;
   onEdit?: (agentId: string) => void;
   onDelete?: (agentId: string) => void;
@@ -59,6 +64,7 @@ export function AgentCardEnhanced({
   agent, 
   view, 
   onDownload, 
+  onBuy,
   onConnect, 
   onEdit, 
   onDelete,
@@ -109,7 +115,7 @@ export function AgentCardEnhanced({
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-1">
                 <h3 className="text-lg font-semibold text-white">{agent.name}</h3>
-                {agent.owner.verified && (
+                {((agent.owner && agent.owner.verified) || agent.createdBy) && (
                   <Tooltip>
                     <TooltipTrigger>
                       <CheckCircle className="w-4 h-4 text-blue-400" />
@@ -126,7 +132,7 @@ export function AgentCardEnhanced({
               
               <div className="flex items-center space-x-4 text-xs text-gray-500">
                 <span>v{agent.version}</span>
-                <span>by {agent.owner.name}</span>
+                <span>by {(agent.owner && agent.owner.name) || (agent.createdBy && agent.createdBy.name) || 'Fleetopia Team'}</span>
                 <span>{agent.category}</span>
               </div>
             </div>
@@ -151,8 +157,8 @@ export function AgentCardEnhanced({
             <div className="text-xs text-gray-400">Downloads</div>
           </div>
           <div>
-            <div className={`text-sm font-medium ${getPerformanceColor(agent.validationScore)}`}>
-              {agent.validationScore}%
+            <div className={`text-sm font-medium ${getPerformanceColor(agent.validationScore || 0)}`}>
+              {agent.validationScore || 0}%
             </div>
             <div className="text-xs text-gray-400">Score</div>
           </div>
@@ -185,12 +191,12 @@ export function AgentCardEnhanced({
         {/* Capabilities */}
         <div className="mb-4">
           <div className="flex flex-wrap gap-2">
-            {(showAllCapabilities ? agent.capabilities : agent.capabilities.slice(0, 3)).map((capability, index) => (
+            {Array.isArray(agent.capabilities) && (showAllCapabilities ? agent.capabilities : agent.capabilities.slice(0, 3)).map((capability: string, index: number) => (
               <Badge key={index} variant="secondary" className="text-xs">
                 {capability}
               </Badge>
             ))}
-            {agent.capabilities.length > 3 && (
+            {Array.isArray(agent.capabilities) && agent.capabilities.length > 3 && (
               <Badge 
                 variant="outline" 
                 className="text-xs cursor-pointer hover:bg-gray-700 transition-colors"
@@ -203,11 +209,11 @@ export function AgentCardEnhanced({
         </div>
 
         {/* Required APIs */}
-        {agent.requiresAPI.length > 0 && (
+        {Array.isArray(agent.requiresAPI) && agent.requiresAPI.length > 0 && (
           <div className="mb-4">
             <div className="text-xs text-gray-400 mb-2">Requires APIs:</div>
             <div className="flex flex-wrap gap-1">
-              {agent.requiresAPI.map((api, index) => (
+              {agent.requiresAPI.map((api: string, index: number) => (
                 <span key={index} className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-800 text-gray-300">
                   <Zap className="w-3 h-3 mr-1" />
                   {api}
@@ -229,11 +235,11 @@ export function AgentCardEnhanced({
             <div>
               <div className="text-sm font-medium text-white mb-2">Performance Metrics</div>
               <div className="grid grid-cols-2 gap-3">
-                {Object.entries(agent.performance).map(([key, value]) => (
+                {typeof agent.performance === 'object' && agent.performance && Object.entries(agent.performance).map(([key, value]) => (
                   <div key={key} className="flex justify-between">
                     <span className="text-xs text-gray-400 capitalize">{key}:</span>
-                    <span className={`text-xs font-medium ${getPerformanceColor(value)}`}>
-                      {value}%
+                    <span className={`text-xs font-medium ${getPerformanceColor(typeof value === 'number' ? value : 0)}`}>
+                      {typeof value === 'number' ? `${value}%` : String(value)}
                     </span>
                   </div>
                 ))}
@@ -241,13 +247,15 @@ export function AgentCardEnhanced({
             </div>
 
             {/* Last Updated */}
-            <div className="flex items-center justify-between text-xs text-gray-400">
-              <span>Last updated: {agent.lastUpdated.toLocaleDateString()}</span>
-              <div className="flex items-center space-x-1">
-                <Clock className="w-3 h-3" />
-                <span>{agent.lastUpdated.toLocaleTimeString()}</span>
+            {agent.lastUpdated && (
+              <div className="flex items-center justify-between text-xs text-gray-400">
+                <span>Last updated: {agent.lastUpdated.toLocaleDateString()}</span>
+                <div className="flex items-center space-x-1">
+                  <Clock className="w-3 h-3" />
+                  <span>{agent.lastUpdated.toLocaleTimeString()}</span>
+                </div>
               </div>
-            </div>
+            )}
           </motion.div>
         )}
 
@@ -277,7 +285,7 @@ export function AgentCardEnhanced({
                 
                 <Button
                   size="sm"
-                  onClick={() => onDownload?.(agent.id)}
+                  onClick={() => agent.price ? onBuy?.(agent) : onDownload?.(agent.id)}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   <Download className="w-4 h-4 mr-2" />

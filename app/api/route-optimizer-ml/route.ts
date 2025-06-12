@@ -1,6 +1,63 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { routeOptimizationService } from '../../../lib/route-optimization-service';
 
+// Function to analyze extreme conditions
+function analyzeExtremeConditions(requestBody: any) {
+  const conditions = {
+    isExtreme: false,
+    factors: [] as string[],
+    severity: 'normal' as 'normal' | 'moderate' | 'severe' | 'extreme'
+  };
+
+  // Check distance extremes
+  if (requestBody.distance > 500) {
+    conditions.factors.push('very_long_distance');
+    conditions.isExtreme = true;
+  }
+  if (requestBody.distance < 5) {
+    conditions.factors.push('very_short_distance');
+  }
+
+  // Check traffic conditions
+  if (requestBody.trafficData?.congestionLevel > 0.8) {
+    conditions.factors.push('heavy_traffic');
+    conditions.isExtreme = true;
+  }
+
+  // Check weather conditions
+  if (requestBody.weatherData?.conditions === 'storm' || 
+      requestBody.weatherData?.visibility === 'poor') {
+    conditions.factors.push('severe_weather');
+    conditions.isExtreme = true;
+  }
+
+  // Check vehicle conditions
+  if (requestBody.vehicle?.currentFuel < 20) {
+    conditions.factors.push('low_fuel');
+    conditions.isExtreme = true;
+  }
+  if (requestBody.vehicle?.currentLoad > requestBody.vehicle?.maxLoad * 0.95) {
+    conditions.factors.push('heavy_load');
+  }
+
+  // Check time constraints
+  if (requestBody.timeConstraints?.maxDrivingTime < 240) {
+    conditions.factors.push('tight_schedule');
+    conditions.isExtreme = true;
+  }
+
+  // Determine severity
+  if (conditions.factors.length >= 3) {
+    conditions.severity = 'extreme';
+  } else if (conditions.factors.length >= 2) {
+    conditions.severity = 'severe';
+  } else if (conditions.factors.length >= 1) {
+    conditions.severity = 'moderate';
+  }
+
+  return conditions;
+}
+
 // Initialize enhanced service
 routeOptimizationService.initialize().then(() => {
   console.log('✅ Enhanced Route Optimizer API ready with Historical Learning');
@@ -209,16 +266,33 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('\n🚀 === ROUTE OPTIMIZER ML API - DETAILED LOGGING START ===');
+    const requestStart = Date.now();
+    
     const body = await request.json();
     const { distance, trafficData, vehicle, driver, weatherData, fuelPrices, timeConstraints, waypoints, driverId, vehicleId } = body;
 
+    console.log('📥 Input Parameters:');
+    console.log('  📏 Distance:', distance, 'km');
+    console.log('  👤 Driver ID:', driverId || 'none');
+    console.log('  🚛 Vehicle ID:', vehicleId || 'none');
+    console.log('  🚦 Traffic Data:', trafficData ? 'provided' : 'none');
+    console.log('  🌤️ Weather Data:', weatherData ? 'provided' : 'none');
+    console.log('  ⛽ Fuel Prices:', fuelPrices ? 'provided' : 'none');
+    console.log('  📍 Waypoints:', waypoints ? waypoints.length : 0);
+
     if (!distance || typeof distance !== 'number') {
+      console.log('❌ Validation Failed: Distance missing or invalid');
       return NextResponse.json({
         success: false,
         error: 'Invalid input',
         message: 'Distance is required and must be a number'
       }, { status: 400 });
     }
+
+    // Analyze input complexity for extreme conditions
+    const isExtremeConditions = analyzeExtremeConditions(body);
+    console.log('🌡️ Extreme Conditions Analysis:', isExtremeConditions);
 
     // Create optimization request
     const optimizationRequest = {
@@ -234,8 +308,79 @@ export async function POST(request: NextRequest) {
       vehicleId
     };
 
+    console.log('\n🧠 Starting ML Optimization Process...');
+    const mlStart = Date.now();
+    
     // Optimize route using enhanced ML + historical learning + driver personalization + vehicle optimization
     const optimization = await routeOptimizationService.optimizeRoute(optimizationRequest);
+    
+    const mlDuration = Date.now() - mlStart;
+    console.log('⚡ ML Processing completed in:', mlDuration, 'ms');
+
+    // Detailed result analysis
+    console.log('\n📊 === OPTIMIZATION RESULTS ANALYSIS ===');
+    console.log('🎯 Basic ML Prediction:');
+    console.log('  📐 Distance optimized:', optimization.distance, 'km');
+    console.log('  ⏰ Duration optimized:', optimization.duration, 'minutes');
+    console.log('  🎲 Optimization factor:', (optimization.optimizationFactor * 100).toFixed(1), '%');
+    console.log('  🎖️ Confidence score:', (optimization.confidence * 100).toFixed(1), '%');
+
+    // Driver personalization analysis
+    if (optimization.personalizedForDriver) {
+      console.log('\n👤 Driver Personalization Applied:');
+      console.log('  🆔 Driver ID:', optimization.personalizedForDriver);
+      console.log('  🎯 Personalization confidence:', 
+        (optimization.driverPersonalization?.profileConfidence * 100 || 0).toFixed(1), '%');
+      console.log('  ⚠️ Risk level:', optimization.driverPersonalization?.riskLevel || 'unknown');
+      console.log('  🎯 Focus area:', optimization.driverPersonalization?.focusArea || 'general');
+      console.log('  💡 Recommendations count:', 
+        optimization.driverPersonalization?.recommendations?.length || 0);
+    }
+
+    // Vehicle optimization analysis
+    if (optimization.vehicleOptimized) {
+      console.log('\n🚛 Vehicle Optimization Applied:');
+      console.log('  🆔 Vehicle ID:', optimization.vehicleId);
+      console.log('  ⛽ Fuel efficiency gain:', 
+        (optimization.vehicleOptimization?.fuelEfficiencyGain * 100 || 0).toFixed(1), '%');
+      console.log('  💰 Cost savings:', '€', optimization.vehicleOptimization?.costSavings || 0);
+      console.log('  🏋️ Load impact factor:', optimization.vehicleOptimization?.loadImpactFactor || 1);
+    }
+
+    // Historical learning analysis
+    if (optimization.historicallyEnhanced) {
+      console.log('\n🧠 Historical Learning Applied:');
+      console.log('  📚 Based on routes:', optimization.basedOnSimilarRoutes);
+      console.log('  🎯 Historical accuracy:', (optimization.historicalAccuracy * 100).toFixed(1), '%');
+      console.log('  📈 Learning confidence factors:');
+      optimization.learningData?.confidenceFactors?.forEach((factor, index) => {
+        console.log(`    ${index + 1}. ${factor.factor}: ${(factor.confidence * 100).toFixed(1)}%`);
+      });
+    }
+
+    // Extreme conditions handling
+    if (isExtremeConditions.isExtreme) {
+      console.log('\n🌡️ Extreme Conditions Handling:');
+      console.log('  🚨 Severity level:', isExtremeConditions.severity);
+      console.log('  ⚠️ Risk factors:', isExtremeConditions.factors.join(', '));
+      console.log('  🛡️ Safety adjustments: Applied automatically');
+    }
+
+    // Final optimization summary
+    const totalSavings = optimization.savings?.percentageSaved || 0;
+    const totalDuration = Date.now() - requestStart;
+    
+    console.log('\n✅ === OPTIMIZATION SUMMARY ===');
+    console.log('  💾 Total time savings:', totalSavings.toFixed(1), '%');
+    console.log('  ⚡ API response time:', totalDuration, 'ms');
+    console.log('  🔬 Algorithms used:', [
+      optimization.historicallyEnhanced ? 'Historical' : null,
+      optimization.personalizedForDriver ? 'Driver' : null,
+      optimization.vehicleOptimized ? 'Vehicle' : null,
+      'ML-Base'
+    ].filter(Boolean).join(' + '));
+    console.log('  🎯 Combined optimization:', optimization.combinedOptimization ? 'YES' : 'NO');
+    console.log('🏁 === ROUTE OPTIMIZER ML API - DETAILED LOGGING END ===\n');
     
     return NextResponse.json({
       success: true,
@@ -248,6 +393,11 @@ export async function POST(request: NextRequest) {
         personalizedForDriver: optimization.personalizedForDriver || null,
         optimizedForVehicle: optimization.vehicleId || null,
         combinedOptimization: optimization.combinedOptimization || false,
+        extremeConditions: isExtremeConditions,
+        processingTime: {
+          mlProcessing: mlDuration,
+          totalRequest: totalDuration
+        },
         timestamp: new Date().toISOString()
       }
     });

@@ -17,12 +17,14 @@ interface DynamicField {
 }
 
 interface APIIntegrationFormProps {
-  onSubmit: (data: any) => void;
+  onSubmit?: (data: any) => void;
   onCancel?: () => void;
+  onClose?: () => void;
+  onSuccess?: () => Promise<void>;
   initialData?: any;
 }
 
-export function APIIntegrationForm({ onSubmit, initialData }: APIIntegrationFormProps) {
+export function APIIntegrationForm({ onSubmit, onSuccess, onClose, initialData }: APIIntegrationFormProps) {
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     type: initialData?.type || '',
@@ -131,7 +133,7 @@ export function APIIntegrationForm({ onSubmit, initialData }: APIIntegrationForm
     ));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Convert dynamic fields to objects
     const configuration = configFields.reduce((acc, field) => {
       if (field.key && field.value) {
@@ -164,7 +166,17 @@ export function APIIntegrationForm({ onSubmit, initialData }: APIIntegrationForm
       endpoints: endpointsObj
     };
 
-    onSubmit(submitData);
+    if (onSubmit) {
+      onSubmit(submitData);
+    }
+    
+    if (onSuccess) {
+      await onSuccess();
+    }
+    
+    if (onClose) {
+      onClose();
+    }
   };
 
   return (

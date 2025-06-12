@@ -1,8 +1,11 @@
-
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
+// Removed Prisma import - using mock data instead
+
+// Mock weather data storage
+let mockWeatherStorage: any[] = [];
+let mockAlertStorage: any[] = [];
 
 // Weather APIs - OpenWeatherMap, AccuWeather integration
 export async function GET(request: NextRequest) {
@@ -106,58 +109,59 @@ export async function GET(request: NextRequest) {
 
     const weatherData = mockWeatherData[provider as keyof typeof mockWeatherData] || mockWeatherData.openweathermap;
 
-    // Store weather data in database
+    // Store weather data in mock storage
     try {
-      await prisma.weatherData.create({
-        data: {
-          location: weatherData.location,
-          provider: weatherData.provider,
-          current: weatherData.current,
-          forecast: weatherData.forecast,
-          alerts: weatherData.alerts,
-          roadRisk: weatherData.roadRisk,
-          visibility: weatherData.visibility,
-          timestamp: new Date()
-        }
+      mockWeatherStorage.push({
+        id: Date.now(),
+        location: weatherData.location,
+        provider: weatherData.provider,
+        current: weatherData.current,
+        forecast: weatherData.forecast,
+        alerts: weatherData.alerts,
+        roadRisk: weatherData.roadRisk,
+        visibility: weatherData.visibility,
+        timestamp: new Date()
       });
 
       // Generate weather alerts if severe conditions
       if (weatherData.alerts && weatherData.alerts.length > 0) {
         for (const alert of weatherData.alerts) {
-          await prisma.alert.create({
+          mockAlertStorage.push({
+            id: Date.now() + Math.random(),
+            type: 'weather',
+            severity: alert.severity === 'high' ? 'critical' : alert.severity === 'moderate' ? 'high' : 'medium',
+            title: alert.title,
+            message: alert.description,
             data: {
-              type: 'weather',
-              severity: alert.severity === 'high' ? 'critical' : alert.severity === 'moderate' ? 'high' : 'medium',
-              title: alert.title,
-              message: alert.description,
-              data: {
-                weatherAlert: alert,
-                location: weatherData.location,
-                roadRisk: weatherData.roadRisk
-              },
-              provider: weatherData.provider
-            }
+              weatherAlert: alert,
+              location: weatherData.location,
+              roadRisk: weatherData.roadRisk
+            },
+            provider: weatherData.provider,
+            timestamp: new Date()
           });
         }
       }
 
       // Generate road risk alerts
       if (weatherData.roadRisk > 0.4) {
-        await prisma.alert.create({
+        mockAlertStorage.push({
+          id: Date.now() + Math.random(),
+          type: 'safety',
+          severity: weatherData.roadRisk > 0.6 ? 'critical' : 'high',
+          title: 'High Road Risk Warning',
+          message: `Weather conditions pose increased road risk: ${Math.round(weatherData.roadRisk * 100)}%`,
           data: {
-            type: 'safety',
-            severity: weatherData.roadRisk > 0.6 ? 'critical' : 'high',
-            title: 'High Road Risk Warning',
-            message: `Weather conditions pose increased road risk: ${Math.round(weatherData.roadRisk * 100)}%`,
-            data: {
-              roadRisk: weatherData.roadRisk,
-              weather: weatherData.current,
-              location: weatherData.location
-            },
-            provider: weatherData.provider
-          }
+            roadRisk: weatherData.roadRisk,
+            weather: weatherData.current,
+            location: weatherData.location
+          },
+          provider: weatherData.provider,
+          timestamp: new Date()
         });
       }
+
+      console.log(`Weather data stored for ${weatherData.location.address}:`, weatherData.current.conditions);
 
     } catch (dbError) {
       console.warn('Failed to store weather data:', dbError);

@@ -34,16 +34,16 @@ export async function GET(request: NextRequest) {
 
     const contributions = await prisma.marketplaceContribution.findMany({
       where: whereClause,
-      orderBy: { timestamp: 'desc' },
+      orderBy: { createdAt: 'desc' },
       take: limit
     });
 
     // Get marketplace statistics
     const totalContributions = await prisma.marketplaceContribution.count();
     const contributionsByType = await prisma.marketplaceContribution.groupBy({
-      by: ['contributionType'],
+      by: ['type'],
       _count: {
-        contributionType: true
+        type: true
       },
       _avg: {
         impact: true

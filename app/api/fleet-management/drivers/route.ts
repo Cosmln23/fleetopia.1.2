@@ -1,8 +1,45 @@
-
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
+// Removed Prisma import - using mock data instead
+
+// Mock drivers storage
+let mockDrivers: any[] = [
+  {
+    id: 'driver-1',
+    fleetId: 'fleet-1',
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john.doe@fleet.com',
+    phone: '+1234567890',
+    licenseNumber: 'DL123456789',
+    licenseExpiry: new Date('2025-12-31'),
+    status: 'active',
+    hoursWorked: 35,
+    currentLocation: { lat: 40.7128, lng: -74.0060 },
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date(),
+    modernTrips: [],
+    alerts: []
+  },
+  {
+    id: 'driver-2',
+    fleetId: 'fleet-1',
+    firstName: 'Jane',
+    lastName: 'Smith',
+    email: 'jane.smith@fleet.com',
+    phone: '+1234567891',
+    licenseNumber: 'DL987654321',
+    licenseExpiry: new Date('2026-06-30'),
+    status: 'active',
+    hoursWorked: 42,
+    currentLocation: { lat: 40.7589, lng: -73.9851 },
+    createdAt: new Date('2024-01-15'),
+    updatedAt: new Date(),
+    modernTrips: [],
+    alerts: []
+  }
+];
 
 // Fleet Drivers API
 export async function GET(request: NextRequest) {
@@ -14,13 +51,7 @@ export async function GET(request: NextRequest) {
 
     if (driverId) {
       // Get specific driver
-      const driver = await prisma.modernDriver.findUnique({
-        where: { id: driverId },
-        include: {
-          modernTrips: include.includes('trips'),
-          alerts: include.includes('alerts') ? { where: { resolved: false } } : false
-        }
-      });
+      const driver = mockDrivers.find(d => d.id === driverId);
 
       if (!driver) {
         return NextResponse.json({
@@ -38,15 +69,9 @@ export async function GET(request: NextRequest) {
       });
     } else {
       // Get drivers for fleet
-      const where = fleetId ? { fleetId } : {};
-      const drivers = await prisma.modernDriver.findMany({
-        where,
-        include: {
-          modernTrips: include.includes('trips') ? { take: 5, orderBy: { startTime: 'desc' } } : false,
-          alerts: include.includes('alerts') ? { where: { resolved: false } } : false
-        },
-        orderBy: { createdAt: 'desc' }
-      });
+      const drivers = fleetId 
+        ? mockDrivers.filter(d => d.fleetId === fleetId)
+        : mockDrivers;
 
       return NextResponse.json({
         success: true,
@@ -91,19 +116,25 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const driver = await prisma.modernDriver.create({
-      data: {
-        fleetId,
-        firstName,
-        lastName,
-        email,
-        phone,
-        licenseNumber,
-        licenseExpiry: new Date(licenseExpiry),
-        status: 'active',
-        hoursWorked: 0
-      }
-    });
+    const driver = {
+      id: `driver-${Date.now()}`,
+      fleetId,
+      firstName,
+      lastName,
+      email,
+      phone,
+      licenseNumber,
+      licenseExpiry: new Date(licenseExpiry),
+      status: 'active',
+      hoursWorked: 0,
+      currentLocation: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      modernTrips: [],
+      alerts: []
+    };
+
+    mockDrivers.push(driver);
 
     return NextResponse.json({
       success: true,
@@ -144,21 +175,26 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const updateData: any = { updatedAt: new Date() };
-    if (status) updateData.status = status;
-    if (currentLocation) updateData.currentLocation = currentLocation;
-    if (hoursWorked !== undefined) updateData.hoursWorked = hoursWorked;
-    if (phone) updateData.phone = phone;
-    if (licenseExpiry) updateData.licenseExpiry = new Date(licenseExpiry);
+    const driverIndex = mockDrivers.findIndex(d => d.id === driverId);
+    if (driverIndex === -1) {
+      return NextResponse.json({
+        success: false,
+        error: 'Driver not found',
+        timestamp: new Date()
+      }, { status: 404 });
+    }
 
-    const driver = await prisma.modernDriver.update({
-      where: { id: driverId },
-      data: updateData
-    });
+    // Update driver data
+    if (status) mockDrivers[driverIndex].status = status;
+    if (currentLocation) mockDrivers[driverIndex].currentLocation = currentLocation;
+    if (hoursWorked !== undefined) mockDrivers[driverIndex].hoursWorked = hoursWorked;
+    if (phone) mockDrivers[driverIndex].phone = phone;
+    if (licenseExpiry) mockDrivers[driverIndex].licenseExpiry = new Date(licenseExpiry);
+    mockDrivers[driverIndex].updatedAt = new Date();
 
     return NextResponse.json({
       success: true,
-      data: driver,
+      data: mockDrivers[driverIndex],
       message: 'Driver updated successfully',
       timestamp: new Date()
     });
@@ -188,9 +224,16 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
 
-    await prisma.modernDriver.delete({
-      where: { id: driverId }
-    });
+    const driverIndex = mockDrivers.findIndex(d => d.id === driverId);
+    if (driverIndex === -1) {
+      return NextResponse.json({
+        success: false,
+        error: 'Driver not found',
+        timestamp: new Date()
+      }, { status: 404 });
+    }
+
+    mockDrivers.splice(driverIndex, 1);
 
     return NextResponse.json({
       success: true,
