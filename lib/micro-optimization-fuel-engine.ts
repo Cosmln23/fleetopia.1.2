@@ -1,5 +1,5 @@
 // ⚡ Micro-Optimization Fuel Engine - PROMPT 3 Implementation
-// Sistem avansat de micro-optimizare pentru eficiența combustibilului
+// Advanced micro-optimization system for fuel efficiency
 
 export interface IoTDataPoint {
   timestamp: Date;
@@ -594,8 +594,8 @@ export class MicroOptimizationFuelEngine {
         type: 'regenerative_braking_max',
         description: 'Maximize regenerative braking recovery',
         potentialGain: 0.15,
-        technique: 'One-pedal driving și anticipatory braking',
-        implementation: 'Use highest regen setting și coast to stops'
+            technique: 'One-pedal driving and anticipatory braking',
+    implementation: 'Use highest regen setting and coast to stops'
       });
     }
 

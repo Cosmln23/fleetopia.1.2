@@ -2,14 +2,14 @@ import { MLOptimizationResult } from './ml-route-optimizer';
 
 // Comprehensive Vehicle Profile Interface
 export interface VehicleProfile {
-  // Identificare vehicul
+  // Vehicle identification
   vehicleId: string;
   plateNumber: string;
   vehicleName: string;
   createdAt: Date;
   lastUpdated: Date;
   
-  // Specificații tehnice complete
+  // Complete technical specifications
   technicalSpecs: {
     type: 'car' | 'van' | 'truck' | 'motorcycle' | 'electric' | 'hybrid';
     category: 'personal' | 'commercial' | 'heavy_duty' | 'specialized';
@@ -63,7 +63,7 @@ export interface VehicleProfile {
     };
   };
   
-  // Starea actuală a vehiculului
+      // Current vehicle state
   currentState: {
     fuelLevel: number;
     estimatedRange: number;
@@ -92,7 +92,7 @@ export interface VehicleProfile {
     };
   };
   
-  // Restricții legale și operaționale
+      // Legal and operational restrictions
   restrictions: {
     legalRestrictions: {
       maxDrivingTimePerDay: number;
@@ -165,7 +165,7 @@ export interface VehicleProfile {
     };
   };
   
-  // Associations pentru cross-referencing
+      // Associations for cross-referencing
   associations: {
     primaryDriver: string | null;
     secondaryDrivers: string[];
@@ -177,7 +177,7 @@ export interface VehicleProfile {
     }>;
   };
   
-  // Learning și optimization metadata
+      // Learning and optimization metadata
   optimizationData: {
     profileCompleteness: number;
     dataQuality: number;
@@ -272,12 +272,12 @@ export class VehicleSpecificOptimizer {
     try {
       let profile = this.vehicleProfiles.get(vehicleId) || this.createNewVehicleProfile(vehicleId, vehicleData);
       
-      // Update cu new performance data dacă available
+      // Update with new performance data if available
       if (performanceData) {
         profile = await this.updateVehiclePerformance(profile, performanceData);
       }
       
-      // Update current state dacă provided
+      // Update current state if provided
       if (vehicleData.currentState) {
         profile.currentState = { ...profile.currentState, ...vehicleData.currentState };
       }
@@ -338,7 +338,7 @@ export class VehicleSpecificOptimizer {
     }
     
     try {
-      // Check dacă vehicle can complete route
+      // Check if vehicle can complete route
       const viabilityCheck = await this.checkRouteViability(route, vehicleProfile);
       if (!viabilityCheck.canComplete) {
         return {
@@ -354,7 +354,7 @@ export class VehicleSpecificOptimizer {
       // Apply vehicle-specific restrictions
       const restrictedRoute = await this.applyVehicleRestrictions(route, vehicleProfile);
       
-      // Optimize pentru vehicle efficiency
+      // Optimize for vehicle efficiency
       const optimizedRoute = await this.optimizeForVehicleEfficiency(restrictedRoute, vehicleProfile);
       
       // Calculate load impact
@@ -421,10 +421,10 @@ export class VehicleSpecificOptimizer {
     const specialConditionsImpact = this.getSpecialConditionsImpact(state.specialConditions);
     baseConsumption *= specialConditionsImpact;
     
-    // Calculate fuel needed pentru route
+          // Calculate fuel needed for route
     const fuelNeeded = (route.distance / 100) * baseConsumption;
     
-    // Check dacă vehicle has enough fuel
+          // Check if vehicle has enough fuel
     const currentFuelAmount = state.fuelLevel * specs.fuelSystem.tankCapacity;
     const canCompleteWithCurrentFuel = currentFuelAmount >= fuelNeeded;
     
@@ -731,7 +731,7 @@ export class VehicleSpecificOptimizer {
       warnings.push({
         type: 'fuel_low',
         severity: 'high',
-        message: `Nivel combustibil scăzut (${(state.fuelLevel * 100).toFixed(0)}%). Recomandăm alimentare înainte de plecare.`,
+        message: `Low fuel level (${(state.fuelLevel * 100).toFixed(0)}%). Recommend refueling before departure.`,
         actionRequired: true
       });
     }
@@ -740,7 +740,7 @@ export class VehicleSpecificOptimizer {
       warnings.push({
         type: 'maintenance_due',
         severity: state.maintenanceStatus === 'critical' ? 'critical' : 'medium',
-        message: `Vehiculul necesită service. Ultima revizie: ${state.lastServiceKm} km.`,
+        message: `Vehicle requires service. Last service: ${state.lastServiceKm} km.`,
         actionRequired: state.maintenanceStatus === 'critical'
       });
     }

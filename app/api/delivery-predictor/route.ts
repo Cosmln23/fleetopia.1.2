@@ -5,7 +5,7 @@ const DeliveryPredictorAPI = {
   async initialize() {
     return true;
   },
-
+  
   async predictDelivery(request: any) {
     return {
       estimatedDeliveryTime: {
@@ -206,7 +206,7 @@ export async function POST(request: NextRequest) {
           efficiency: rec.efficiency,
           description: `Best method for ${area.toLowerCase()} areas`
         }));
-
+        
         return NextResponse.json({
           success: true,
           data: methodRecommendations
@@ -259,7 +259,7 @@ export async function POST(request: NextRequest) {
     console.error('DeliveryPredictor API Error:', error);
     return NextResponse.json(
       { 
-        success: false, 
+      success: false,
         error: 'Failed to process delivery prediction',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
@@ -269,11 +269,11 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  return NextResponse.json({
+        return NextResponse.json({
     service: 'DeliveryPredictor',
-    status: 'active',
+            status: 'active',
     version: '2.0.0',
-    capabilities: [
+          capabilities: [
       'delivery_prediction',
       'route_optimization', 
       'dynamic_pricing',

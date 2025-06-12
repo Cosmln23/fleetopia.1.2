@@ -65,7 +65,7 @@ export class RouteOptimizationService {
   private vehicleOptimizer: VehicleSpecificOptimizer;
   private isInitialized = false;
   
-  // Storage pentru pending predictions
+      // Storage for pending predictions
   private pendingLearning: Map<string, {
     prediction: EnhancedOptimizationResult;
     timestamp: Date;
@@ -139,7 +139,7 @@ export class RouteOptimizationService {
       if (request.vehicleId) {
         vehicleOptimization = await this.vehicleOptimizer.optimizeForVehicle(personalizedPrediction, request.vehicleId);
         if (vehicleOptimization && vehicleOptimization.vehicleOptimized) {
-          // Combine personalized prediction cu vehicle specifics
+          // Combine personalized prediction with vehicle specifics
           vehicleOptimizedPrediction = {
             ...personalizedPrediction,
             distance: vehicleOptimization.distance,
@@ -151,7 +151,7 @@ export class RouteOptimizationService {
         }
       }
 
-      // Step 4: Enhance cu historical learning dacă avem date suficiente
+      // Step 4: Enhance with historical learning if we have enough data
       let enhancedPrediction: EnhancedOptimizationResult = {
         ...vehicleOptimizedPrediction,
         historicallyEnhanced: false
@@ -161,7 +161,7 @@ export class RouteOptimizationService {
         const historicalEnhancement = await this.routeLearner.predictBasedOnSimilarRoutes(request);
         
         if (historicalEnhancement) {
-          // Combine ML prediction cu historical learning
+          // Combine ML prediction with historical learning
           const combinedOptimization = (basicPrediction.optimizationFactor * 0.7) + 
                                      (historicalEnhancement.optimizationFactor * 0.3);
           const combinedConfidence = Math.min(basicPrediction.confidence, historicalEnhancement.confidence);
@@ -193,10 +193,10 @@ export class RouteOptimizationService {
         enhancedPrediction.vehicleOptimization = vehicleOptimization;
       }
 
-      // Step 6: Generate unique route ID pentru tracking
+      // Step 6: Generate unique route ID for tracking
       enhancedPrediction.routeId = 'route_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       
-      // Step 7: Store prediction pentru future learning
+      // Step 7: Store prediction for future learning
       this.pendingLearning.set(enhancedPrediction.routeId, {
         prediction: enhancedPrediction,
         timestamp: new Date()
@@ -358,7 +358,7 @@ export class RouteOptimizationService {
     });
   }
 
-  // Public getters pentru debugging/monitoring
+      // Public getters for debugging/monitoring
   getStats(): any {
     return {
       initialized: this.isInitialized,

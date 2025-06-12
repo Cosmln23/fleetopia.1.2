@@ -113,14 +113,14 @@ export async function GET(request: NextRequest) {
     try {
       mockWeatherStorage.push({
         id: Date.now(),
-        location: weatherData.location,
-        provider: weatherData.provider,
-        current: weatherData.current,
-        forecast: weatherData.forecast,
-        alerts: weatherData.alerts,
-        roadRisk: weatherData.roadRisk,
-        visibility: weatherData.visibility,
-        timestamp: new Date()
+          location: weatherData.location,
+          provider: weatherData.provider,
+          current: weatherData.current,
+          forecast: weatherData.forecast,
+          alerts: weatherData.alerts,
+          roadRisk: weatherData.roadRisk,
+          visibility: weatherData.visibility,
+          timestamp: new Date()
       });
 
       // Generate weather alerts if severe conditions
@@ -128,15 +128,15 @@ export async function GET(request: NextRequest) {
         for (const alert of weatherData.alerts) {
           mockAlertStorage.push({
             id: Date.now() + Math.random(),
-            type: 'weather',
-            severity: alert.severity === 'high' ? 'critical' : alert.severity === 'moderate' ? 'high' : 'medium',
-            title: alert.title,
-            message: alert.description,
-            data: {
-              weatherAlert: alert,
-              location: weatherData.location,
-              roadRisk: weatherData.roadRisk
-            },
+              type: 'weather',
+              severity: alert.severity === 'high' ? 'critical' : alert.severity === 'moderate' ? 'high' : 'medium',
+              title: alert.title,
+              message: alert.description,
+              data: {
+                weatherAlert: alert,
+                location: weatherData.location,
+                roadRisk: weatherData.roadRisk
+              },
             provider: weatherData.provider,
             timestamp: new Date()
           });
@@ -147,15 +147,15 @@ export async function GET(request: NextRequest) {
       if (weatherData.roadRisk > 0.4) {
         mockAlertStorage.push({
           id: Date.now() + Math.random(),
-          type: 'safety',
-          severity: weatherData.roadRisk > 0.6 ? 'critical' : 'high',
-          title: 'High Road Risk Warning',
-          message: `Weather conditions pose increased road risk: ${Math.round(weatherData.roadRisk * 100)}%`,
-          data: {
-            roadRisk: weatherData.roadRisk,
-            weather: weatherData.current,
-            location: weatherData.location
-          },
+            type: 'safety',
+            severity: weatherData.roadRisk > 0.6 ? 'critical' : 'high',
+            title: 'High Road Risk Warning',
+            message: `Weather conditions pose increased road risk: ${Math.round(weatherData.roadRisk * 100)}%`,
+            data: {
+              roadRisk: weatherData.roadRisk,
+              weather: weatherData.current,
+              location: weatherData.location
+            },
           provider: weatherData.provider,
           timestamp: new Date()
         });

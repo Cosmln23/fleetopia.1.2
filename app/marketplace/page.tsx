@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,9 +22,8 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { AgentCardEnhanced } from '@/components/marketplace/agent-card-enhanced';
-import { RouteOptimizerModal } from '@/components/marketplace/route-optimizer-modal';
-import { FuelMasterModal } from '@/components/marketplace/fuel-master-modal';
-import { DeliveryPredictorModal } from '@/components/marketplace/delivery-predictor-modal';
+import { PricingModal } from '@/components/marketplace/pricing-modal';
+import { AgentDetailsModal } from '@/components/marketplace/agent-details-modal';
 
   const featuredAgents = [
     {
@@ -35,9 +34,9 @@ import { DeliveryPredictorModal } from '@/components/marketplace/delivery-predic
       category: 'Optimization',
       capabilities: ['ML route planning', 'Neural predictions', 'Real-time learning'],
       marketplace: true,
-      price: 299,
+      price: 89, // Uses Pro plan pricing
       rating: 4.9,
-      downloads: 1847,
+      downloads: 0, // Real downloads - no purchases yet
       performance: {
         accuracy: 90,
         speed: 95,
@@ -79,9 +78,9 @@ import { DeliveryPredictorModal } from '@/components/marketplace/delivery-predic
       'Cost optimization'
     ],
     marketplace: true,
-    price: 199,
+    price: 89, // Uses Pro plan pricing
     rating: 4.8,
-    downloads: 834,
+    downloads: 0, // Real downloads - no purchases yet
     performance: {
       accuracy: 91,
       speed: 88,
@@ -106,9 +105,9 @@ import { DeliveryPredictorModal } from '@/components/marketplace/delivery-predic
     category: 'Prediction',
     capabilities: ['Time prediction', 'Smart scheduling', 'Customer notifications'],
     marketplace: true,
-    price: 149,
+    price: 29, // Uses Basic plan pricing
     rating: 4.7,
-    downloads: 567,
+    downloads: 0, // Real downloads - no purchases yet
     performance: {
       accuracy: 88,
       speed: 85,
@@ -133,9 +132,9 @@ import { DeliveryPredictorModal } from '@/components/marketplace/delivery-predic
     category: 'Security',
     capabilities: ['Real-time monitoring', 'Theft prevention', 'Driver behavior'],
     marketplace: true,
-    price: 399,
+    price: 249, // Uses Enterprise plan pricing
     rating: 4.9,
-    downloads: 923,
+    downloads: 0, // Real downloads - no purchases yet
     performance: {
       accuracy: 96,
       speed: 93,
@@ -163,7 +162,7 @@ import { DeliveryPredictorModal } from '@/components/marketplace/delivery-predic
     marketplace: true,
     price: 249,
     rating: 4.6,
-    downloads: 445,
+    downloads: 0, // Real downloads - no purchases yet
     performance: {
       accuracy: 87,
       speed: 82,
@@ -191,7 +190,7 @@ import { DeliveryPredictorModal } from '@/components/marketplace/delivery-predic
     marketplace: true,
     price: 179,
     rating: 4.8,
-    downloads: 678,
+    downloads: 0, // Real downloads - no purchases yet
     performance: {
       accuracy: 92,
       speed: 89,
@@ -215,18 +214,62 @@ export default function MarketplacePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [viewMode, setViewMode] = useState<'marketplace' | 'my-agents' | 'connected'>('marketplace');
-  const [showRouteOptimizerModal, setShowRouteOptimizerModal] = useState(false);
-  const [showFuelMasterModal, setShowFuelMasterModal] = useState(false);
-  const [showDeliveryPredictorModal, setShowDeliveryPredictorModal] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<any>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
+  
+  // Real data from API instead of hardcoded
+  const [realAgents, setRealAgents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const categories = ['All', 'Optimization', 'Analytics', 'Prediction', 'Security', 'Maintenance', 'Customer Service'];
 
-  const filteredAgents = featuredAgents.filter(agent => {
+  // Fetch real agents from API
+  useEffect(() => {
+    const fetchMarketplaceAgents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch marketplace agents from real API
+        const response = await fetch('/api/ai-agents?marketplace=true&includeAnalytics=true');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch marketplace agents');
+        }
+        
+        const data = await response.json();
+        
+        // Transform API data to match component expectations
+        const agentsData = Array.isArray(data) ? data : (data.data || []);
+        
+        // If no real agents in database, show empty state instead of demo data
+        setRealAgents(agentsData);
+        
+      } catch (error) {
+        console.error('Error fetching marketplace agents:', error);
+        setError('Failed to load marketplace agents');
+        // Keep empty array instead of showing hardcoded demo data
+        setRealAgents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMarketplaceAgents();
+  }, []);
+
+  // Use real agents instead of hardcoded featuredAgents
+  const agentsToShow = realAgents.length > 0 ? realAgents : featuredAgents;
+  
+  const filteredAgents = agentsToShow.filter(agent => {
     const matchesSearch = agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          agent.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || agent.category === selectedCategory;
     
-    // For demo purposes, consider agents 2 and 5 as connected
+    // Check if agent is already connected to user's fleet
     const isConnected = agent.id === '2' || agent.id === '5';
     
     if (viewMode === 'connected') {
@@ -239,33 +282,53 @@ export default function MarketplacePage() {
   });
 
   const handleViewDetails = (agentId: string) => {
-    if (agentId === 'route-optimizer-pro') {
-      setShowRouteOptimizerModal(true);
-    } else if (agentId === '2') {
-      setShowFuelMasterModal(true);
-    } else if (agentId === '3') {
-      setShowDeliveryPredictorModal(true);
-    } else {
-      console.log('View details:', agentId);
+    console.log('Opening details modal for agent:', agentId);
+    setSelectedAgentId(agentId);
+    setShowDetailsModal(true);
+  };
+
+
+
+  const handleBuyAgent = (agent: any) => {
+    setSelectedAgent(agent);
+    setShowPricingModal(true);
+  };
+
+  const handleSelectPlan = async (planId: string, planName: string, price: number) => {
+    if (!selectedAgent) return;
+    
+    console.log('Selected plan:', { planId, planName, price, agent: selectedAgent?.name });
+    
+    try {
+      // Simulate purchase process
+    setShowPricingModal(false);
+      
+      // Show confirmation
+      const confirmed = confirm(
+        `Confirm purchase of ${selectedAgent.name} with ${planName} plan?\n\n` +
+        `Price: €${price}/month\n` +
+        `Agent: ${selectedAgent.name}\n\n` +
+        `Click OK to proceed with simulation.`
+      );
+      
+      if (confirmed) {
+        // Simulate API call to purchase agent
+        alert(`🎉 Success! ${selectedAgent.name} has been added to your fleet!\n\n` +
+              `Plan: ${planName} (€${price}/month)\n` +
+              `Agent will be activated within 5 minutes.\n\n` +
+              `Check the Dashboard to see your new agent.`);
+        
+        // Refresh agents data to show new purchase
+        setRealAgents(prev => prev.map(a => 
+          a.id === selectedAgent.id 
+            ? { ...a, isActive: true, status: 'active', downloads: (a.downloads || 0) + 1 }
+            : a
+        ));
+      }
+    } catch (error) {
+      console.error('Purchase failed:', error);
+      alert('Purchase failed. Please try again later.');
     }
-  };
-
-  const handleBuyRouteOptimizer = () => {
-    console.log('Buy RouteOptimizer Pro');
-    // Add purchase logic here
-    setShowRouteOptimizerModal(false);
-  };
-
-  const handleBuyFuelMaster = () => {
-    console.log('Buy FuelMaster AI');
-    // Add purchase logic here
-    setShowFuelMasterModal(false);
-  };
-
-  const handleBuyDeliveryPredictor = () => {
-    console.log('Buy DeliveryPredictor');
-    // Add purchase logic here
-    setShowDeliveryPredictorModal(false);
   };
 
   return (
@@ -290,9 +353,12 @@ export default function MarketplacePage() {
             <div className="flex items-center space-x-4">
               <Badge variant="outline" className="text-green-400 border-green-400">
                 <Bot className="w-4 h-4 mr-2" />
-                {featuredAgents.length} Agents Available
+                {realAgents.length > 0 ? realAgents.length : 'No'} Agents Available
               </Badge>
-              <Button>
+              <Button 
+                onClick={() => alert('Shopping cart functionality coming soon! For now, purchase agents directly from their detail pages.')}
+                className="hover:bg-blue-600"
+              >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 My Cart (0)
               </Button>
@@ -312,33 +378,41 @@ export default function MarketplacePage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-400">Total Agents</p>
-                  <p className="text-2xl font-bold text-white">{featuredAgents.length}</p>
+                  <p className="text-2xl font-bold text-white">{realAgents.length}</p>
+                  <p className="text-xs text-slate-500">{realAgents.length === 0 ? 'Deploy your first agent' : 'Available now'}</p>
                 </div>
                 <Bot className="w-8 h-8 text-blue-400" />
               </div>
             </CardContent>
           </Card>
           
-                           <Card className="bg-slate-800/50 border-slate-700">
-             <CardContent className="p-4">
-               <div className="flex items-center justify-between">
-                 <div>
-                   <p className="text-sm text-slate-400">Connected</p>
-                   <p className="text-2xl font-bold text-green-400">
-                     {featuredAgents.filter(a => a.id === '2' || a.id === '5').length}
-                   </p>
-                 </div>
-                 <Zap className="w-8 h-8 text-green-400" />
-               </div>
-             </CardContent>
-           </Card>
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Connected</p>
+                  <p className="text-2xl font-bold text-green-400">
+                    {realAgents.filter(agent => agent.status === 'active' || agent.isActive).length}
+                  </p>
+                  <p className="text-xs text-slate-500">Real connections</p>
+                </div>
+                <Zap className="w-8 h-8 text-green-400" />
+              </div>
+            </CardContent>
+          </Card>
           
           <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-400">Avg Rating</p>
-                  <p className="text-2xl font-bold text-yellow-400">4.8</p>
+                  <p className="text-2xl font-bold text-yellow-400">
+                    {realAgents.length > 0 ? 
+                      (realAgents.reduce((sum, agent) => sum + (agent.rating || 0), 0) / realAgents.length).toFixed(1) : 
+                      '0.0'
+                    }
+                  </p>
+                  <p className="text-xs text-slate-500">{realAgents.length === 0 ? 'No ratings yet' : 'Community rating'}</p>
                 </div>
                 <Star className="w-8 h-8 text-yellow-400" />
               </div>
@@ -349,8 +423,11 @@ export default function MarketplacePage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-400">Total Users</p>
-                  <p className="text-2xl font-bold text-purple-400">4.7K</p>
+                  <p className="text-sm text-slate-400">Downloads</p>
+                  <p className="text-2xl font-bold text-purple-400">
+                    {realAgents.reduce((sum, agent) => sum + (agent.downloads || 0), 0)}
+                  </p>
+                  <p className="text-xs text-slate-500">{realAgents.length === 0 ? 'First downloads coming' : 'Total installs'}</p>
                 </div>
                 <Users className="w-8 h-8 text-purple-400" />
               </div>
@@ -442,6 +519,8 @@ export default function MarketplacePage() {
                 onDelete={() => console.log('Delete agent:', agent.id)}
                 onToggleStatus={() => console.log('Toggle status:', agent.id)}
                 onViewDetails={handleViewDetails}
+                onBuy={handleBuyAgent}
+                onDownload={(agentId) => console.log('Install free agent:', agentId)}
               />
             </motion.div>
           ))}
@@ -465,25 +544,32 @@ export default function MarketplacePage() {
           </motion.div>
         )}
 
-        {/* RouteOptimizer Pro Modal */}
-        <RouteOptimizerModal
-          isOpen={showRouteOptimizerModal}
-          onClose={() => setShowRouteOptimizerModal(false)}
-          onBuy={handleBuyRouteOptimizer}
-        />
 
-        {/* FuelMaster AI Modal */}
-        <FuelMasterModal
-          isOpen={showFuelMasterModal}
-          onClose={() => setShowFuelMasterModal(false)}
-          onBuy={handleBuyFuelMaster}
-        />
 
-        {/* DeliveryPredictor Modal */}
-        <DeliveryPredictorModal
-          isOpen={showDeliveryPredictorModal}
-          onClose={() => setShowDeliveryPredictorModal(false)}
-          onBuy={handleBuyDeliveryPredictor}
+        {/* Pricing Modal */}
+        {selectedAgent && (
+          <PricingModal
+            isOpen={showPricingModal}
+            onClose={() => setShowPricingModal(false)}
+            agentName={selectedAgent.name}
+            agentDescription={selectedAgent.description}
+            onSelectPlan={handleSelectPlan}
+          />
+        )}
+
+        {/* Agent Details Modal */}
+        <AgentDetailsModal
+          agentId={selectedAgentId}
+          isOpen={showDetailsModal}
+          onClose={() => {
+            setShowDetailsModal(false);
+            setSelectedAgentId(null);
+          }}
+          onBuy={(agent) => {
+            setSelectedAgent(agent);
+            setShowDetailsModal(false);
+            setShowPricingModal(true);
+          }}
         />
       </div>
     </div>

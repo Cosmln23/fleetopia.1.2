@@ -30,7 +30,7 @@ export default function InteractiveMap() {
     {
       id: '1',
       name: 'Truck Alpha',
-      position: { lat: 45.7489, lng: 21.2087 }, // Timișoara
+      position: { lat: 45.7489, lng: 21.2087 }, // Timisoara
       status: 'active',
       speed: 65,
       fuel: 78,
@@ -44,7 +44,7 @@ export default function InteractiveMap() {
     {
       id: '2',
       name: 'Van Beta',
-      position: { lat: 44.4268, lng: 26.1025 }, // București
+      position: { lat: 44.4268, lng: 26.1025 }, // Bucharest
       status: 'idle',
       speed: 0,
       fuel: 45,
@@ -67,7 +67,7 @@ export default function InteractiveMap() {
     {
       id: '4',
       name: 'Van Delta',
-      position: { lat: 44.1598, lng: 28.6348 }, // Constanța
+      position: { lat: 44.1598, lng: 28.6348 }, // Constanta
       status: 'maintenance',
       speed: 0,
       fuel: 23,

@@ -40,7 +40,7 @@ export function FreeMapComponent() {
     {
       id: '1',
       name: 'Truck Alpha',
-      position: [45.7489, 21.2087], // Timișoara
+      position: [45.7489, 21.2087], // Timisoara
       status: 'active',
       speed: 65,
       fuel: 78,
@@ -49,7 +49,7 @@ export function FreeMapComponent() {
     {
       id: '2',
       name: 'Van Beta',
-      position: [44.4268, 26.1025], // București
+      position: [44.4268, 26.1025], // Bucharest
       status: 'idle',
       speed: 0,
       fuel: 45,
@@ -67,7 +67,7 @@ export function FreeMapComponent() {
     {
       id: '4',
       name: 'Van Delta',
-      position: [44.1598, 28.6348], // Constanța
+      position: [44.1598, 28.6348], // Constanta
       status: 'maintenance',
       speed: 0,
       fuel: 23,
@@ -238,25 +238,25 @@ export function FreeMapComponent() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 bg-green-900/20 border border-green-700/50 rounded-lg">
               <h3 className="font-medium text-green-400 mb-2">OpenStreetMap</h3>
-              <p className="text-sm text-gray-300 mb-3">Hărți gratuite, open-source</p>
+              <p className="text-sm text-gray-300 mb-3">Free maps, open-source</p>
               <Button variant="outline" size="sm" className="text-green-400 border-green-700">
-                ✅ În folosință
+                ✅ In use
               </Button>
             </div>
             
             <div className="p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
               <h3 className="font-medium text-blue-400 mb-2">Nominatim Geocoding</h3>
-              <p className="text-sm text-gray-300 mb-3">Geocodare gratuită pentru adrese</p>
+              <p className="text-sm text-gray-300 mb-3">Free geocoding for addresses</p>
               <Button variant="outline" size="sm" className="text-blue-400 border-blue-700">
-                Activează
+                Activate
               </Button>
             </div>
             
             <div className="p-4 bg-purple-900/20 border border-purple-700/50 rounded-lg">
               <h3 className="font-medium text-purple-400 mb-2">OSRM Routing</h3>
-              <p className="text-sm text-gray-300 mb-3">Calculare rute gratuite</p>
+              <p className="text-sm text-gray-300 mb-3">Free route calculation</p>
               <Button variant="outline" size="sm" className="text-purple-400 border-purple-700">
-                Activează
+                Activate
               </Button>
             </div>
           </div>

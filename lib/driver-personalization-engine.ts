@@ -9,7 +9,7 @@ export interface DriverProfile {
   
   // Basic driver info
   basicInfo: {
-    experienceYears: number;               // ani experiență condus
+    experienceYears: number;               // years of driving experience
     licenseType: string;                   // B, C, CE, etc
     ageGroup: 'young' | 'middle' | 'senior'; // pentru insurance factors
     preferredLanguage: string;             // pentru UI personalization
@@ -21,7 +21,7 @@ export interface DriverProfile {
     speedProfile: {
       citySpeedTendency: number;           // -0.3 to +0.3 (relative la speed limit)
       highwaySpeedTendency: number;        // -0.2 to +0.4 
-      averageSpeedDeviation: number;       // % deviere față de predicted
+      averageSpeedDeviation: number;       // % deviation from predicted
       speedConsistency: number;            // 0-1 (1 = very consistent speed)
     };
     

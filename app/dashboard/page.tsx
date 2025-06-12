@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -19,38 +18,70 @@ interface DashboardData {
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState<DashboardData>({
-    activeVehicles: 247,
-    aiAgentsOnline: 12,
-    revenueToday: 24567,
-    fuelEfficiency: 94.7,
-    totalTrips: 1834,
-    averageDeliveryTime: 42,
-    costSavings: 18420
+    activeVehicles: 0,
+    aiAgentsOnline: 0,
+    revenueToday: 0,
+    fuelEfficiency: 0,
+    totalTrips: 0,
+    averageDeliveryTime: 0,
+    costSavings: 0
   });
 
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    // Simulate real-time updates
-    const updateTimer = setInterval(() => {
-      setDashboardData(prev => ({
-        ...prev,
-        revenueToday: prev.revenueToday + Math.floor(Math.random() * 100),
-        fuelEfficiency: Math.max(90, Math.min(100, prev.fuelEfficiency + (Math.random() - 0.5) * 0.5)),
-        totalTrips: prev.totalTrips + Math.floor(Math.random() * 3)
-      }));
-    }, 5000);
+    fetchDashboardData();
+    
+    // Set up real-time updates every 30 seconds
+    const updateTimer = setInterval(fetchDashboardData, 30000);
 
     return () => {
-      clearTimeout(timer);
       clearInterval(updateTimer);
     };
   }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setError(null);
+      const response = await fetch('/api/dashboard');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch dashboard data');
+      }
+      
+      const data = await response.json();
+      
+      // Handle both empty state and real data
+      if (data.isEmpty) {
+        setDashboardData({
+          activeVehicles: 0,
+          aiAgentsOnline: 0,
+          revenueToday: 0,
+          fuelEfficiency: 0,
+          totalTrips: 0,
+          averageDeliveryTime: 0,
+          costSavings: 0
+        });
+      } else {
+        setDashboardData({
+          activeVehicles: data.activeVehicles || 0,
+          aiAgentsOnline: data.aiAgentsOnline || 0,
+          revenueToday: data.revenueToday || 0,
+          fuelEfficiency: data.fuelEfficiency || 0,
+          totalTrips: data.totalTrips || 0,
+          averageDeliveryTime: data.averageDeliveryTime || 0,
+          costSavings: data.costSavings || 0
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setError('Failed to load dashboard data');
+      // Keep showing zeros instead of demo data on error
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -88,7 +119,11 @@ export default function DashboardPage() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-8"
         >
-          <DigitalScreen />
+          <DigitalScreen 
+            fleetEfficiency={dashboardData.fuelEfficiency}
+            aiProcessingRate={dashboardData.aiAgentsOnline * 100} // Convert agents to processing rate
+            systemStatus={dashboardData.activeVehicles > 0 ? 'online' : 'offline'}
+          />
         </motion.div>
 
         {/* Main Metrics */}
@@ -103,8 +138,8 @@ export default function DashboardPage() {
             value={dashboardData.activeVehicles}
             subtitle="Currently operational"
             icon={Truck}
-            trend="up"
-            trendValue="+3"
+            trend={dashboardData.activeVehicles > 0 ? "up" : "neutral"}
+            trendValue={dashboardData.activeVehicles > 0 ? `${dashboardData.activeVehicles} online` : "Getting started"}
             animate={true}
           />
           <MetricCard
@@ -112,7 +147,8 @@ export default function DashboardPage() {
             value={dashboardData.aiAgentsOnline}
             subtitle="Processing requests"
             icon={Bot}
-            trend="neutral"
+            trend={dashboardData.aiAgentsOnline > 0 ? "up" : "neutral"}
+            trendValue={dashboardData.aiAgentsOnline > 0 ? "Active" : "Deploy agents"}
             animate={true}
           />
           <MetricCard
@@ -120,8 +156,8 @@ export default function DashboardPage() {
             value={`€${dashboardData.revenueToday.toLocaleString()}`}
             subtitle="Daily earnings"
             icon={Euro}
-            trend="up"
-            trendValue="+12%"
+            trend={dashboardData.revenueToday > 0 ? "up" : "neutral"}
+            trendValue={dashboardData.revenueToday > 0 ? "Earning" : "Start operations"}
             animate={true}
           />
           <MetricCard
@@ -129,8 +165,8 @@ export default function DashboardPage() {
             value={`${dashboardData.fuelEfficiency.toFixed(1)}%`}
             subtitle="Fleet average"
             icon={Fuel}
-            trend="up"
-            trendValue="+2.3%"
+            trend={dashboardData.fuelEfficiency > 80 ? "up" : dashboardData.fuelEfficiency > 0 ? "neutral" : "neutral"}
+            trendValue={dashboardData.fuelEfficiency > 0 ? "Monitoring" : "No data"}
             animate={true}
           />
         </motion.div>
@@ -147,8 +183,8 @@ export default function DashboardPage() {
             value={dashboardData.totalTrips}
             subtitle="Completed today"
             icon={Route}
-            trend="up"
-            trendValue="+47"
+            trend={dashboardData.totalTrips > 0 ? "up" : "neutral"}
+            trendValue={dashboardData.totalTrips > 0 ? "Active routes" : "No trips yet"}
             animate={true}
           />
           <MetricCard
@@ -156,8 +192,8 @@ export default function DashboardPage() {
             value={`${dashboardData.averageDeliveryTime} min`}
             subtitle="Route optimization"
             icon={Clock}
-            trend="down"
-            trendValue="-8 min"
+            trend={dashboardData.averageDeliveryTime > 0 ? "neutral" : "neutral"}
+            trendValue={dashboardData.averageDeliveryTime > 0 ? "Tracking" : "No deliveries"}
             animate={true}
           />
           <MetricCard
@@ -165,8 +201,8 @@ export default function DashboardPage() {
             value={`€${dashboardData.costSavings.toLocaleString()}`}
             subtitle="AI optimization"
             icon={TrendingUp}
-            trend="up"
-            trendValue="+15%"
+            trend={dashboardData.costSavings > 0 ? "up" : "neutral"}
+            trendValue={dashboardData.costSavings > 0 ? "Optimizing" : "Deploy AI agents"}
             animate={true}
           />
         </motion.div>
@@ -185,32 +221,12 @@ export default function DashboardPage() {
               <Activity className="w-5 h-5 text-green-400" />
             </div>
             <div className="space-y-4">
-              {[
-                { id: 'OP-001', route: 'Berlin → Munich', status: 'In Transit', progress: 67 },
-                { id: 'OP-002', route: 'Hamburg → Frankfurt', status: 'Loading', progress: 15 },
-                { id: 'OP-003', route: 'Cologne → Stuttgart', status: 'Delivered', progress: 100 },
-                { id: 'OP-004', route: 'Dresden → Leipzig', status: 'In Transit', progress: 43 }
-              ].map((operation) => (
-                <div key={operation.id} className="metric-card rounded p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-white font-mono">{operation.id}</span>
-                    <span className={`text-xs px-2 py-1 rounded ${
-                      operation.status === 'Delivered' ? 'bg-green-400/20 text-green-400' :
-                      operation.status === 'In Transit' ? 'bg-blue-400/20 text-blue-400' :
-                      'bg-yellow-400/20 text-yellow-400'
-                    }`}>
-                      {operation.status}
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-300 mb-2">{operation.route}</div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-green-400 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${operation.progress}%` }}
-                    ></div>
-                  </div>
+              {dashboardData.totalTrips === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-400 mb-2">No active operations</p>
+                  <p className="text-sm text-gray-500">Start by adding vehicles to your fleet</p>
                 </div>
-              ))}
+              ) : null}
             </div>
           </div>
 
@@ -221,28 +237,12 @@ export default function DashboardPage() {
               <Bot className="w-5 h-5 text-green-400" />
             </div>
             <div className="space-y-4">
-              {[
-                { name: 'Fuel Optimizer', status: 'Active', requests: 234, efficiency: 97 },
-                { name: 'Route Genius', status: 'Active', requests: 189, efficiency: 94 },
-                { name: 'Weather Prophet', status: 'Active', requests: 156, efficiency: 91 },
-                { name: 'Maintenance Predictor', status: 'Standby', requests: 67, efficiency: 89 }
-              ].map((agent) => (
-                <div key={agent.name} className="metric-card rounded p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-white">{agent.name}</span>
-                    <span className={`text-xs px-2 py-1 rounded ${
-                      agent.status === 'Active' ? 'bg-green-400/20 text-green-400' :
-                      'bg-gray-400/20 text-gray-400'
-                    }`}>
-                      {agent.status}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-400">
-                    <span>{agent.requests} requests</span>
-                    <span>{agent.efficiency}% efficiency</span>
-                  </div>
+              {dashboardData.aiAgentsOnline === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-400 mb-2">No AI agents active</p>
+                  <p className="text-sm text-gray-500">Deploy agents to start automation</p>
                 </div>
-              ))}
+              ) : null}
             </div>
           </div>
         </motion.div>

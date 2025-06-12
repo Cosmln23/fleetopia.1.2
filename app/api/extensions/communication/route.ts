@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     const filteredNotifications = type !== 'all' 
       ? mockNotifications.filter(n => n.type === type).slice(0, limit)
       : mockNotifications.slice(0, limit);
-    
+
     const filteredCommunicationLogs = type !== 'all'
       ? mockCommunicationLogs.filter(l => l.type === type).slice(0, limit)
       : mockCommunicationLogs.slice(0, limit);
@@ -162,41 +162,41 @@ export async function POST(request: NextRequest) {
     // Create notification record (mock)
     const notification = {
       id: `notif-${Date.now()}`,
-      userId,
-      type,
-      provider,
-      recipient,
-      subject,
-      message,
-      status: sendResult.success ? 'sent' : 'failed',
-      priority,
+        userId,
+        type,
+        provider,
+        recipient,
+        subject,
+        message,
+        status: sendResult.success ? 'sent' : 'failed',
+        priority,
       createdAt: new Date(),
-      sentAt: sendResult.success ? new Date() : null,
-      deliveredAt: sendResult.success ? new Date(Date.now() + sendResult.deliveryTime * 1000) : null,
-      metadata: {
-        messageId: sendResult.messageId,
-        cost: sendResult.cost,
-        deliveryTime: sendResult.deliveryTime
-      }
+        sentAt: sendResult.success ? new Date() : null,
+        deliveredAt: sendResult.success ? new Date(Date.now() + sendResult.deliveryTime * 1000) : null,
+        metadata: {
+          messageId: sendResult.messageId,
+          cost: sendResult.cost,
+          deliveryTime: sendResult.deliveryTime
+        }
     };
 
     // Create communication log (mock)
     const communicationLog = {
       id: `comm-${Date.now()}`,
-      type,
-      provider,
-      sender: 'system@fleetopia.co',
-      recipient,
-      subject,
-      content: message,
-      status: sendResult.success ? 'sent' : 'failed',
-      cost: sendResult.cost,
-      timestamp: new Date(),
-      metadata: {
-        messageId: sendResult.messageId,
-        priority,
-        deliveryTime: sendResult.deliveryTime
-      }
+        type,
+        provider,
+        sender: 'system@fleetopia.co',
+        recipient,
+        subject,
+        content: message,
+        status: sendResult.success ? 'sent' : 'failed',
+        cost: sendResult.cost,
+        timestamp: new Date(),
+        metadata: {
+          messageId: sendResult.messageId,
+          priority,
+          deliveryTime: sendResult.deliveryTime
+        }
     };
 
     // Add to mock storage
@@ -280,8 +280,8 @@ export async function PUT(request: NextRequest) {
       mockNotifications[notifIndex].status = status;
       if (deliveredAt) {
         mockNotifications[notifIndex].deliveredAt = new Date(deliveredAt);
-      }
-    }
+            }
+          }
 
     // Update communication log in mock storage  
     const logIndex = mockCommunicationLogs.findIndex(l => l.id === id);

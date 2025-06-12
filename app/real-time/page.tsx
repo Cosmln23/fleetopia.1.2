@@ -442,15 +442,17 @@ export default function RealTimePage() {
                     </div>
                   </div>
                   <div className="h-96 rounded-lg overflow-hidden border">
-                    <MapContainer
-                      center={selectedVehicle 
-                        ? [selectedVehicle.location.lat, selectedVehicle.location.lng]
-                        : [45.7489, 21.2087] // Timișoara center as default
-                      }
-                      zoom={selectedVehicle ? 13 : 7}
-                      style={{ height: '100%', width: '100%' }}
-                      className="rounded-lg"
-                    >
+                    {typeof window !== 'undefined' ? (
+                      <MapContainer
+                        center={selectedVehicle 
+                          ? [selectedVehicle.location.lat, selectedVehicle.location.lng]
+                          : [45.7489, 21.2087] // Timișoara center as default
+                        }
+                        zoom={selectedVehicle ? 13 : 7}
+                        style={{ height: '100%', width: '100%' }}
+                        className="rounded-lg"
+                        key={selectedVehicle?.id || 'default-map'}
+                      >
                       <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -474,7 +476,15 @@ export default function RealTimePage() {
                           </Popup>
                         </Marker>
                       ))}
-                    </MapContainer>
+                      </MapContainer>
+                    ) : (
+                      <div className="h-full flex items-center justify-center bg-gray-800 text-white">
+                        <div className="text-center">
+                          <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>Loading map...</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

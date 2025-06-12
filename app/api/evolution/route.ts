@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
           evolutionCycle: 23,
           confidenceScore: 0.92,
           treeLayer: 2
-        }
+          }
       },
       {
         id: 'evo-002',
@@ -97,8 +97,8 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching evolution data:', error);
     return NextResponse.json(
-      {
-        success: false,
+      { 
+        success: false, 
         error: 'Failed to fetch evolution data',
         protocolVersion: '2.0',
         confidenceScore: 0.0
@@ -149,57 +149,57 @@ export async function POST(request: NextRequest) {
     // Mock evolution log
     const evolutionLog = {
       id: `evo-${Date.now()}`,
-      agentId,
-      evolutionCycle: newCycle,
-      previousVersion: agent.version,
-      newVersion,
+        agentId,
+        evolutionCycle: newCycle,
+        previousVersion: agent.version,
+        newVersion,
       timestamp: new Date(),
-      modifications: {
-        algorithm_changes: [
-          'Enhanced pattern recognition',
-          'Improved decision making',
-          'Optimized resource utilization'
-        ],
-        performance_optimizations: [
-          `Performance increased by ${performanceImprovement.toFixed(1)}%`,
-          `Confidence improved by ${(confidenceGain * 100).toFixed(1)}%`,
-          'Memory usage optimized'
-        ],
-        new_capabilities: [
-          'Advanced learning algorithms',
-          'Improved prediction accuracy',
-          'Enhanced user interaction'
-        ]
-      },
-      performance: {
-        before: {
+        modifications: {
+          algorithm_changes: [
+            'Enhanced pattern recognition',
+            'Improved decision making',
+            'Optimized resource utilization'
+          ],
+          performance_optimizations: [
+            `Performance increased by ${performanceImprovement.toFixed(1)}%`,
+            `Confidence improved by ${(confidenceGain * 100).toFixed(1)}%`,
+            'Memory usage optimized'
+          ],
+          new_capabilities: [
+            'Advanced learning algorithms',
+            'Improved prediction accuracy',
+            'Enhanced user interaction'
+          ]
+        },
+        performance: {
+          before: {
           efficiency: 85,
           confidence: 0.87,
           success_rate: 92
-        },
-        after: {
+          },
+          after: {
           efficiency: 85 + performanceImprovement,
           confidence: 0.87 + confidenceGain,
           success_rate: 93
+          },
+          improvement: {
+            efficiency: performanceImprovement,
+            confidence: confidenceGain,
+            success_rate: 1
+          }
         },
-        improvement: {
-          efficiency: performanceImprovement,
-          confidence: confidenceGain,
-          success_rate: 1
-        }
-      },
-      learningGains: {
-        patterns_discovered: Math.floor(Math.random() * 20) + 10,
-        optimization_opportunities: Math.floor(Math.random() * 15) + 5,
+        learningGains: {
+          patterns_discovered: Math.floor(Math.random() * 20) + 10,
+          optimization_opportunities: Math.floor(Math.random() * 15) + 5,
         knowledge_base_expansion: '15% growth',
         new_model_weights: 847
-      },
+        },
       goalAchievement: 0.85 + Math.random() * 0.1,
       resourceUsage: {
         cpu: '12% optimization',
         memory: '8% reduction',
         energy: '5% savings'
-      }
+          }
     };
 
     return NextResponse.json({
@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
           name: agent.name,
           newVersion,
           evolutionCycle: newCycle,
-          improvements: {
+        improvements: {
             performance: performanceImprovement,
             confidence: confidenceGain
           }
@@ -231,8 +231,8 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error triggering evolution:', error);
     return NextResponse.json(
-      {
-        success: false,
+      { 
+        success: false, 
         error: 'Failed to trigger evolution cycle',
         protocolVersion: '2.0',
         confidenceScore: 0.0

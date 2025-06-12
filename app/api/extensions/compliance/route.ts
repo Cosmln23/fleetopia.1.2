@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
     let filteredChecks: any[] = complianceData.checks;
     if (checkType !== 'all') {
       filteredChecks = complianceData.checks.filter((check: any) => check.type === checkType);
-    }
+        }
 
     // Mock storage since we're avoiding database operations
 
@@ -198,15 +198,15 @@ export async function POST(request: NextRequest) {
     // Mock compliance check storage
     const complianceRecord = {
       id: `comp-${Date.now()}`,
-      vehicleId,
-      driverId,
-      type: checkType,
-      provider,
-      status: checkResult.status,
-      details: checkResult.details,
-      violations: checkResult.details.violations,
-      checkDate: new Date(),
-      automated: true
+        vehicleId,
+        driverId,
+        type: checkType,
+        provider,
+        status: checkResult.status,
+        details: checkResult.details,
+        violations: checkResult.details.violations,
+        checkDate: new Date(),
+        automated: true
     };
 
     return NextResponse.json({

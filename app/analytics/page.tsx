@@ -58,53 +58,73 @@ interface AnalyticsData {
 export default function AnalyticsPage() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
     performance: {
-      fleetEfficiency: 87.3,
-      fuelSavings: 31200,
-      timeOptimization: 23.4,
-      costReduction: 42.1,
-      customerSatisfaction: 4.8
+      fleetEfficiency: 0, // Real data - no efficiency calculated yet
+      fuelSavings: 0, // Real data - no savings yet
+      timeOptimization: 0, // Real data - no optimization yet
+      costReduction: 0, // Real data - no cost reduction yet
+      customerSatisfaction: 0 // Real data - no customers yet
     },
     predictions: {
-      nextWeekSavings: 8450,
-      maintenanceAlerts: 3,
-      routeOptimizations: 12,
-      efficiency: 91.2
+      nextWeekSavings: 0, // Real data - no predictions yet
+      maintenanceAlerts: 0, // Real data - no alerts yet
+      routeOptimizations: 0, // Real data - no optimizations yet
+      efficiency: 0 // Real data - no efficiency data yet
     },
     trends: {
-      dailyRequests: [1200, 1350, 1180, 1420, 1560, 1340, 1280],
-      weeklyRevenue: [23400, 25600, 28100, 26800],
-      monthlyGrowth: 18.7,
-      userRetention: 94.2
+      dailyRequests: [0, 0, 0, 0, 0, 0, 0], // Real data - no requests yet
+      weeklyRevenue: [0, 0, 0, 0], // Real data - no revenue yet
+      monthlyGrowth: 0, // Real data - no growth data yet
+      userRetention: 0 // Real data - no user data yet
     },
     insights: {
-      topAgent: 'RouteOptimizer Pro',
-      bestRoute: 'Berlin → Munich',
-      peakHours: '08:00 - 10:00',
+      topAgent: 'No agents deployed yet',
+      bestRoute: 'No routes optimized yet',
+      peakHours: 'No data available',
       recommendations: [
-        'Optimize fuel consumption for Route #34',
-        'Schedule maintenance for Vehicle FL-234-AB',
-        'Update route planning for rush hour traffic',
-        'Implement driver training program'
+        'Add your first vehicle to the fleet',
+        'Deploy AI agents from the marketplace',
+        'Configure route optimization settings',
+        'Set up real-time monitoring'
       ]
     }
   });
 
   const [selectedTimeframe, setSelectedTimeframe] = useState('week');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setAnalyticsData(prev => ({
-        ...prev,
-        performance: {
-          ...prev.performance,
-          fleetEfficiency: prev.performance.fleetEfficiency + (Math.random() - 0.5) * 2,
-          customerSatisfaction: Math.min(5, Math.max(4, prev.performance.customerSatisfaction + (Math.random() - 0.5) * 0.2))
-        }
-      }));
-    }, 5000);
+    fetchAnalyticsData();
+    
+    // Set up real-time updates every 60 seconds
+    const updateTimer = setInterval(fetchAnalyticsData, 60000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(updateTimer);
+    };
   }, []);
+
+  const fetchAnalyticsData = async () => {
+    try {
+      setError(null);
+      const response = await fetch('/api/analytics');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch analytics data');
+      }
+      
+      const data = await response.json();
+      
+      // Update state with real data from API
+      setAnalyticsData(data);
+    } catch (error) {
+      console.error('Error fetching analytics data:', error);
+      setError('Failed to load analytics data');
+      // Keep existing state on error, don't reset
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const MetricCard = ({ 
     title, 
@@ -212,38 +232,38 @@ export default function AnalyticsPage() {
         >
           <MetricCard
             title="Fleet Efficiency"
-            value={analyticsData.performance.fleetEfficiency.toFixed(1)}
+            value={analyticsData.performance.fleetEfficiency > 0 ? analyticsData.performance.fleetEfficiency.toFixed(1) : "0"}
             unit="%"
-            trend={2.3}
+            trend={analyticsData.performance.fleetEfficiency > 0 ? Math.round(analyticsData.trends.monthlyGrowth / 8) : undefined}
             icon={Target}
             color="bg-blue-500"
-            description="Overall fleet performance"
+            description={analyticsData.performance.fleetEfficiency > 0 ? "Overall fleet performance" : "Deploy vehicles to track efficiency"}
           />
           <MetricCard
             title="Cost Savings"
-            value={`€${(analyticsData.performance.fuelSavings / 1000).toFixed(0)}K`}
-            trend={12.1}
+            value={analyticsData.performance.fuelSavings > 0 ? `€${(analyticsData.performance.fuelSavings / 1000).toFixed(0)}K` : "€0"}
+            trend={analyticsData.performance.fuelSavings > 0 ? Math.round(analyticsData.trends.monthlyGrowth / 1.5) : undefined}
             icon={DollarSign}
             color="bg-green-500"
-            description="Total savings this month"
+            description={analyticsData.performance.fuelSavings > 0 ? "Total savings this month" : "Start optimizing to see savings"}
           />
           <MetricCard
             title="Time Optimization"
-            value={analyticsData.performance.timeOptimization.toFixed(1)}
+            value={analyticsData.performance.timeOptimization > 0 ? analyticsData.performance.timeOptimization.toFixed(1) : "0"}
             unit="%"
-            trend={5.7}
+            trend={analyticsData.performance.timeOptimization > 0 ? Math.round(analyticsData.trends.monthlyGrowth / 3.3) : undefined}
             icon={Clock}
             color="bg-purple-500"
-            description="Delivery time improvement"
+            description={analyticsData.performance.timeOptimization > 0 ? "Delivery time improvement" : "Add routes to optimize delivery times"}
           />
           <MetricCard
             title="Customer Satisfaction"
-            value={analyticsData.performance.customerSatisfaction.toFixed(1)}
+            value={analyticsData.performance.customerSatisfaction > 0 ? analyticsData.performance.customerSatisfaction.toFixed(1) : "0"}
             unit="/5.0"
-            trend={1.2}
+            trend={analyticsData.performance.customerSatisfaction > 0 ? Math.round(analyticsData.trends.userRetention / 80) : undefined}
             icon={Award}
             color="bg-yellow-500"
-            description="Average customer rating"
+            description={analyticsData.performance.customerSatisfaction > 0 ? "Average customer rating" : "Serve customers to track satisfaction"}
           />
         </motion.div>
 
@@ -279,33 +299,49 @@ export default function AnalyticsPage() {
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-slate-400">Fleet Utilization</span>
-                          <span className="text-green-400 font-bold">85.9%</span>
+                          <span className="text-green-400 font-bold">
+                            {analyticsData.performance.fleetEfficiency > 0 ? `${analyticsData.performance.fleetEfficiency}%` : '0%'}
+                          </span>
                         </div>
-                        <Progress value={85.9} className="h-3" />
+                        <Progress value={analyticsData.performance.fleetEfficiency || 0} className="h-3" />
+                        {analyticsData.performance.fleetEfficiency === 0 && (
+                          <p className="text-xs text-slate-500 mt-1">Add vehicles to track utilization</p>
+                        )}
                       </div>
                       
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-slate-400">Route Efficiency</span>
-                          <span className="text-blue-400 font-bold">92.3%</span>
+                          <span className="text-blue-400 font-bold">
+                            {analyticsData.performance.timeOptimization > 0 ? `${analyticsData.performance.timeOptimization}%` : '0%'}
+                          </span>
                         </div>
-                        <Progress value={92.3} className="h-3" />
+                        <Progress value={analyticsData.performance.timeOptimization || 0} className="h-3" />
+                        {analyticsData.performance.timeOptimization === 0 && (
+                          <p className="text-xs text-slate-500 mt-1">Configure routes to track efficiency</p>
+                        )}
                       </div>
                       
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-slate-400">Fuel Optimization</span>
-                          <span className="text-purple-400 font-bold">78.1%</span>
+                          <span className="text-purple-400 font-bold">
+                            {analyticsData.performance.costReduction > 0 ? `${analyticsData.performance.costReduction}%` : '0%'}
+                          </span>
                         </div>
-                        <Progress value={78.1} className="h-3" />
+                        <Progress value={analyticsData.performance.costReduction || 0} className="h-3" />
+                        {analyticsData.performance.costReduction === 0 && (
+                          <p className="text-xs text-slate-500 mt-1">Start tracking fuel to see optimization</p>
+                        )}
                       </div>
                       
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-slate-400">Driver Performance</span>
-                          <span className="text-yellow-400 font-bold">88.7%</span>
+                          <span className="text-yellow-400 font-bold">0%</span>
                         </div>
-                        <Progress value={88.7} className="h-3" />
+                        <Progress value={0} className="h-3" />
+                        <p className="text-xs text-slate-500 mt-1">Hire drivers to track performance</p>
                       </div>
                     </div>
                   </CardContent>
@@ -338,7 +374,7 @@ export default function AnalyticsPage() {
                           <p className="text-sm text-slate-400">User Retention</p>
                         </div>
                         <div>
-                          <p className="text-2xl font-bold text-yellow-400">142ms</p>
+                          <p className="text-2xl font-bold text-yellow-400">0ms</p>
                           <p className="text-sm text-slate-400">Avg Response</p>
                         </div>
                       </div>
@@ -360,15 +396,15 @@ export default function AnalyticsPage() {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-slate-400">Active Vehicles</span>
-                        <span className="text-green-400 font-bold">134/156</span>
+                        <span className="text-green-400 font-bold">0/0</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-400">In Maintenance</span>
-                        <span className="text-yellow-400 font-bold">12</span>
+                        <span className="text-yellow-400 font-bold">0</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-400">Available</span>
-                        <span className="text-blue-400 font-bold">10</span>
+                        <span className="text-blue-400 font-bold">0</span>
                       </div>
                     </div>
                   </CardContent>
@@ -385,15 +421,21 @@ export default function AnalyticsPage() {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-slate-400">Avg Consumption</span>
-                        <span className="text-green-400 font-bold">12.4L/100km</span>
+                        <span className="text-green-400 font-bold">
+                          {analyticsData.performance.fuelSavings > 0 ? "12.4L/100km" : "0 L/100km"}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-400">Monthly Savings</span>
-                        <span className="text-blue-400 font-bold">€{(analyticsData.performance.fuelSavings / 1000).toFixed(0)}K</span>
+                        <span className="text-blue-400 font-bold">
+                          €{analyticsData.performance.fuelSavings > 0 ? (analyticsData.performance.fuelSavings / 1000).toFixed(0) : "0"}K
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-400">Efficiency Gain</span>
-                        <span className="text-purple-400 font-bold">+8.3%</span>
+                        <span className="text-purple-400 font-bold">
+                          {analyticsData.performance.fleetEfficiency > 0 ? "+8.3%" : "0%"}
+                        </span>
                       </div>
                     </div>
                   </CardContent>
@@ -410,15 +452,15 @@ export default function AnalyticsPage() {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-slate-400">Active Drivers</span>
-                        <span className="text-green-400 font-bold">134</span>
+                        <span className="text-green-400 font-bold">0</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-400">Safety Score</span>
-                        <span className="text-blue-400 font-bold">94.7%</span>
+                        <span className="text-blue-400 font-bold">0%</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-400">Avg Rating</span>
-                        <span className="text-purple-400 font-bold">4.6/5</span>
+                        <span className="text-purple-400 font-bold">0/5</span>
                       </div>
                     </div>
                   </CardContent>
@@ -469,26 +511,10 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-3">
-                      <div className="flex items-center space-x-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                        <CheckCircle className="w-5 h-5 text-green-400" />
-                        <div>
-                          <p className="text-sm font-medium text-green-400">Route Optimization Available</p>
-                          <p className="text-xs text-slate-400">3 routes can be improved by 15%</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                        <AlertTriangle className="w-5 h-5 text-yellow-400" />
-                        <div>
-                          <p className="text-sm font-medium text-yellow-400">Maintenance Due</p>
-                          <p className="text-xs text-slate-400">Vehicle FL-234-AB in 3 days</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                        <Zap className="w-5 h-5 text-blue-400" />
-                        <div>
-                          <p className="text-sm font-medium text-blue-400">Fuel Price Drop</p>
-                          <p className="text-xs text-slate-400">Expected 8% decrease next week</p>
-                        </div>
+                      <div className="text-center py-8">
+                        <Calendar className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                        <p className="text-slate-400 mb-2">No upcoming events</p>
+                        <p className="text-sm text-slate-500">Events will appear as your fleet becomes active</p>
                       </div>
                     </div>
                   </CardContent>
