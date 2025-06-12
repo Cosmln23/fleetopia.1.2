@@ -63,7 +63,7 @@ export interface VehicleProfile {
     };
   };
   
-      // Current vehicle state
+  // Current vehicle state
   currentState: {
     fuelLevel: number;
     estimatedRange: number;
@@ -92,7 +92,7 @@ export interface VehicleProfile {
     };
   };
   
-      // Legal and operational restrictions
+  // Legal and operational restrictions
   restrictions: {
     legalRestrictions: {
       maxDrivingTimePerDay: number;
@@ -165,7 +165,7 @@ export interface VehicleProfile {
     };
   };
   
-      // Associations for cross-referencing
+  // Associations for cross-referencing
   associations: {
     primaryDriver: string | null;
     secondaryDrivers: string[];
@@ -177,7 +177,7 @@ export interface VehicleProfile {
     }>;
   };
   
-      // Learning and optimization metadata
+  // Learning and optimization metadata
   optimizationData: {
     profileCompleteness: number;
     dataQuality: number;
@@ -421,10 +421,10 @@ export class VehicleSpecificOptimizer {
     const specialConditionsImpact = this.getSpecialConditionsImpact(state.specialConditions);
     baseConsumption *= specialConditionsImpact;
     
-          // Calculate fuel needed for route
+    // Calculate fuel needed for route
     const fuelNeeded = (route.distance / 100) * baseConsumption;
     
-          // Check if vehicle has enough fuel
+    // Check if vehicle has enough fuel
     const currentFuelAmount = state.fuelLevel * specs.fuelSystem.tankCapacity;
     const canCompleteWithCurrentFuel = currentFuelAmount >= fuelNeeded;
     

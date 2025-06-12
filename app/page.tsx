@@ -287,8 +287,8 @@ export default function FleetMindHome() {
     description: agent.description || 'AI-powered optimization agent',
     systems: agent.enhancedFeatures ? Object.keys(agent.enhancedFeatures).map(key => ({
       name: key.replace(/([A-Z])/g, ' $1').toUpperCase(),
-          icon: Brain,
-          color: 'purple',
+      icon: Brain,
+      color: 'purple',
       features: [`${key} capabilities`, 'Real-time optimization', 'Advanced analytics', 'Custom configuration']
     })) : []
   }));
@@ -537,20 +537,20 @@ export default function FleetMindHome() {
                           className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg hover:bg-slate-700/70 transition-colors cursor-pointer"
                           onClick={() => window.open(`/marketplace?agent=${agent.id}`, '_blank')}
                         >
-                        <div>
-                          <p className="font-medium text-slate-200">{agent.name}</p>
-                          <div className="flex items-center">
-                            <Star className="w-4 h-4 text-yellow-400 mr-1" />
-                            <span className="text-sm text-slate-400">{agent.rating}</span>
+                          <div>
+                            <p className="font-medium text-slate-200">{agent.name}</p>
+                            <div className="flex items-center">
+                              <Star className="w-4 h-4 text-yellow-400 mr-1" />
+                              <span className="text-sm text-slate-400">{agent.rating}</span>
+                            </div>
                           </div>
-                        </div>
                           <div className="flex items-center space-x-2">
-                        <Badge variant="secondary">{agent.price}</Badge>
+                            <Badge variant="secondary">{agent.price}</Badge>
                             <Button size="sm" variant="ghost">
                               <Eye className="w-4 h-4" />
                             </Button>
                           </div>
-                      </div>
+                        </div>
                       ))
                     )}
                   </CardContent>
@@ -563,14 +563,14 @@ export default function FleetMindHome() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {metrics.activeAgents === 0 ? (
-                    <div className="text-center py-8">
-                      <Bot className="w-12 h-12 mx-auto text-slate-600 mb-4" />
-                      <p className="text-slate-400">Connect your first agent</p>
+                      <div className="text-center py-8">
+                        <Bot className="w-12 h-12 mx-auto text-slate-600 mb-4" />
+                        <p className="text-slate-400">Connect your first agent</p>
                         <Link href="/marketplace">
-                      <Button className="mt-4" size="sm">
-                        <ShoppingCart className="w-4 h-4 mr-2" />
-                        Browse Marketplace
-                      </Button>
+                          <Button className="mt-4" size="sm">
+                            <ShoppingCart className="w-4 h-4 mr-2" />
+                            Browse Marketplace
+                          </Button>
                         </Link>
                       </div>
                     ) : (
@@ -616,7 +616,7 @@ export default function FleetMindHome() {
                                 <Target className="w-4 h-4" />
                               </Button>
                             </div>
-                    </div>
+                          </div>
                         ))
                     )}
                   </CardContent>
@@ -757,9 +757,9 @@ export default function FleetMindHome() {
                         </div>
                         <Link href="/analytics">
                           <Button variant="outline" className="w-full">
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Detailed Analytics
-                      </Button>
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Detailed Analytics
+                          </Button>
                         </Link>
                       </div>
                     ) : (
@@ -773,7 +773,7 @@ export default function FleetMindHome() {
                             Add Your First Vehicle
                           </Button>
                         </Link>
-                    </div>
+                      </div>
                     )}
                   </CardContent>
                 </Card>
@@ -808,14 +808,14 @@ export default function FleetMindHome() {
                         .map((api, i) => (
                           <div key={i} className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg hover:bg-slate-700/70 transition-colors cursor-pointer group">
                             <div onClick={() => window.open(`/api-integrations?api=${api.name}`, '_blank')} className="flex-1">
-                          <p className="font-medium text-slate-200">{api.name}</p>
+                              <p className="font-medium text-slate-200">{api.name}</p>
                               <p className={`text-sm ${api.status === 'Connected' ? 'text-green-400' : 'text-yellow-400'}`}>
                                 {api.status}
                               </p>
                               <p className="text-xs text-slate-500">via {api.agentName}</p>
-                        </div>
+                            </div>
                             <div className="text-right mr-2">
-                          <p className="text-sm text-slate-400">Health</p>
+                              <p className="text-sm text-slate-400">Health</p>
                               <p className={`font-bold ${api.health > 90 ? 'text-green-400' : api.health > 70 ? 'text-yellow-400' : 'text-red-400'}`}>
                                 {api.health.toFixed(0)}%
                               </p>
@@ -843,8 +843,8 @@ export default function FleetMindHome() {
                               >
                                 <Zap className="w-4 h-4" />
                               </Button>
-                        </div>
-                      </div>
+                            </div>
+                          </div>
                         ))
                     )}
                   </CardContent>

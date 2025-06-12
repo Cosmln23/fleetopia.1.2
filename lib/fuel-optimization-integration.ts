@@ -1,5 +1,9 @@
 // ⚡ Fuel Optimization Integration - PROMPT 3 Implementation
+<<<<<<< HEAD
 // Integration between Micro-Optimization Engine and existing fuel calculation systems
+=======
+// Integrare între Micro-Optimization Engine și sistemele existente de fuel calculation
+>>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
 
 import { microOptimizationEngine, MicroOptimizationFuelEngine, VehicleOptimization } from './micro-optimization-fuel-engine';
 
@@ -390,7 +394,11 @@ class FuelOptimizationIntegrator {
     const recommendations = [];
     
     if (metrics.realTimeScore < 0.7) {
+<<<<<<< HEAD
       recommendations.push('Focus on smoother acceleration and gentle braking');
+=======
+      recommendations.push('Focus on smoother acceleration și gentle braking');
+>>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
     }
     if (driverInsights.improvementAreas?.includes('acceleration')) {
       recommendations.push('Reduce aggressive acceleration by 30%');

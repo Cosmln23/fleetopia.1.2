@@ -25,189 +25,189 @@ import { AgentCardEnhanced } from '@/components/marketplace/agent-card-enhanced'
 import { PricingModal } from '@/components/marketplace/pricing-modal';
 import { AgentDetailsModal } from '@/components/marketplace/agent-details-modal';
 
-  const featuredAgents = [
-    {
-      id: 'route-optimizer-pro',
-      name: 'RouteOptimizer Pro',
-      description: 'AI-powered route optimization with ML learning',
-      version: '3.0.0',
-      category: 'Optimization',
-      capabilities: ['ML route planning', 'Neural predictions', 'Real-time learning'],
-      marketplace: true,
-      price: 89, // Uses Pro plan pricing
-      rating: 4.9,
-      downloads: 0, // Real downloads - no purchases yet
-      performance: {
-        accuracy: 90,
-        speed: 95,
-        reliability: 94,
-        security: 92
-      },
-      status: 'active' as const,
-      isTemplate: false,
-      requiresAPI: ['Google Maps', 'Traffic Data'],
-      owner: {
-        name: 'FleetAI Labs',
-        verified: true
-      },
-      lastUpdated: new Date(),
-      validationScore: 95.2,
-      mlEnhanced: true,
-      features: [
-        'ML-enhanced route planning',
-        'Real-time traffic optimization', 
-        'Neural network predictions',
-        'Continuous learning',
-        '5-40% cost savings',
-        'TensorFlow.js integration'
-      ]
-    },
+const featuredAgents = [
   {
-    id: '2',
-    name: 'FuelMaster AI',
-    description: 'Complete fuel optimization ecosystem with 3 advanced AI engines: Predictive Fuel Consumption AI (7-day forecasting), Dynamic Fuel Pricing Optimizer (real-time cost optimization), and Micro-Optimization Fuel Engine (driving behavior coaching)',
-    version: '1.8.3',
-    category: 'Analytics',
-    capabilities: [
-      'Predictive Fuel Consumption AI', 
-      'Dynamic Fuel Pricing Optimizer', 
-      'Micro-Optimization Fuel Engine',
-      'Real-time driving coaching',
-      '7-day fuel forecasting',
-      'Market trend analysis',
-      'Cost optimization'
-    ],
+    id: 'route-optimizer-pro',
+    name: 'RouteOptimizer Pro',
+    description: 'AI-powered route optimization with ML learning',
+    version: '3.0.0',
+    category: 'Optimization',
+    capabilities: ['ML route planning', 'Neural predictions', 'Real-time learning'],
     marketplace: true,
     price: 89, // Uses Pro plan pricing
-    rating: 4.8,
+    rating: 4.9,
     downloads: 0, // Real downloads - no purchases yet
     performance: {
-      accuracy: 91,
-      speed: 88,
+      accuracy: 90,
+      speed: 95,
       reliability: 94,
       security: 92
     },
     status: 'active' as const,
     isTemplate: false,
-    requiresAPI: ['Fuel Price API', 'Vehicle Diagnostics', 'Weather API', 'IoT Sensors'],
+    requiresAPI: ['Google Maps', 'Traffic Data'],
     owner: {
-      name: 'FuelTech Solutions',
+      name: 'FleetAI Labs',
       verified: true
     },
     lastUpdated: new Date(),
-    validationScore: 91.7
+    validationScore: 95.2,
+    mlEnhanced: true,
+    features: [
+      'ML-enhanced route planning',
+      'Real-time traffic optimization', 
+      'Neural network predictions',
+      'Continuous learning',
+      '5-40% cost savings',
+      'TensorFlow.js integration'
+    ]
   },
-  {
-    id: '3',
-    name: 'DeliveryPredictor',
-    description: 'ML-powered delivery time predictions and scheduling',
-    version: '1.5.2',
-    category: 'Prediction',
-    capabilities: ['Time prediction', 'Smart scheduling', 'Customer notifications'],
-    marketplace: true,
-    price: 29, // Uses Basic plan pricing
-    rating: 4.7,
-    downloads: 0, // Real downloads - no purchases yet
-    performance: {
-      accuracy: 88,
-      speed: 85,
-      reliability: 91,
-      security: 87
-    },
-    status: 'active' as const,
-    isTemplate: false,
-    requiresAPI: ['Weather API', 'Calendar Integration'],
-    owner: {
-      name: 'PredictAI Corp',
-      verified: true
-    },
-    lastUpdated: new Date(),
-    validationScore: 88.9
+{
+  id: '2',
+  name: 'FuelMaster AI',
+  description: 'Complete fuel optimization ecosystem with 3 advanced AI engines: Predictive Fuel Consumption AI (7-day forecasting), Dynamic Fuel Pricing Optimizer (real-time cost optimization), and Micro-Optimization Fuel Engine (driving behavior coaching)',
+  version: '1.8.3',
+  category: 'Analytics',
+  capabilities: [
+    'Predictive Fuel Consumption AI', 
+    'Dynamic Fuel Pricing Optimizer', 
+    'Micro-Optimization Fuel Engine',
+    'Real-time driving coaching',
+    '7-day fuel forecasting',
+    'Market trend analysis',
+    'Cost optimization'
+  ],
+  marketplace: true,
+  price: 89, // Uses Pro plan pricing
+  rating: 4.8,
+  downloads: 0, // Real downloads - no purchases yet
+  performance: {
+    accuracy: 91,
+    speed: 88,
+    reliability: 94,
+    security: 92
   },
-  {
-    id: '4',
-    name: 'FleetGuardian',
-    description: 'Comprehensive fleet security and monitoring solution',
-    version: '3.0.1',
-    category: 'Security',
-    capabilities: ['Real-time monitoring', 'Theft prevention', 'Driver behavior'],
-    marketplace: true,
-    price: 249, // Uses Enterprise plan pricing
-    rating: 4.9,
-    downloads: 0, // Real downloads - no purchases yet
-    performance: {
-      accuracy: 96,
-      speed: 93,
-      reliability: 98,
-      security: 99
-    },
-    status: 'active' as const,
-    isTemplate: false,
-    requiresAPI: ['GPS Tracking', 'Security Cameras'],
-    owner: {
-      name: 'SecureFleet Inc',
-      verified: true
-    },
-    lastUpdated: new Date(),
-    validationScore: 96.1,
-    comingSoon: true
+  status: 'active' as const,
+  isTemplate: false,
+  requiresAPI: ['Fuel Price API', 'Vehicle Diagnostics', 'Weather API', 'IoT Sensors'],
+  owner: {
+    name: 'FuelTech Solutions',
+    verified: true
   },
-  {
-    id: '5',
-    name: 'MaintenanceGenie',
-    description: 'Predictive maintenance scheduling and cost optimization',
-    version: '2.2.0',
-    category: 'Maintenance',
-    capabilities: ['Predictive alerts', 'Cost optimization', 'Supplier network'],
-    marketplace: true,
-    price: 249,
-    rating: 4.6,
-    downloads: 0, // Real downloads - no purchases yet
-    performance: {
-      accuracy: 87,
-      speed: 82,
-      reliability: 89,
-      security: 91
-    },
-    status: 'active' as const,
-    isTemplate: false,
-    requiresAPI: ['Vehicle Sensors', 'Parts Database'],
-    owner: {
-      name: 'MaintenanceAI Ltd',
-      verified: true
-    },
-    lastUpdated: new Date(),
-    validationScore: 87.3,
-    comingSoon: true
+  lastUpdated: new Date(),
+  validationScore: 91.7
+},
+{
+  id: '3',
+  name: 'DeliveryPredictor',
+  description: 'ML-powered delivery time predictions and scheduling',
+  version: '1.5.2',
+  category: 'Prediction',
+  capabilities: ['Time prediction', 'Smart scheduling', 'Customer notifications'],
+  marketplace: true,
+  price: 29, // Uses Basic plan pricing
+  rating: 4.7,
+  downloads: 0, // Real downloads - no purchases yet
+  performance: {
+    accuracy: 88,
+    speed: 85,
+    reliability: 91,
+    security: 87
   },
-  {
-    id: '6',
-    name: 'CustomerConnect',
-    description: 'AI-powered customer communication and satisfaction tracking',
-    version: '1.9.5',
-    category: 'Customer Service',
-    capabilities: ['Auto-notifications', 'Satisfaction tracking', 'Support automation'],
-    marketplace: true,
-    price: 179,
-    rating: 4.8,
-    downloads: 0, // Real downloads - no purchases yet
-    performance: {
-      accuracy: 92,
-      speed: 89,
-      reliability: 95,
-      security: 88
-    },
-    status: 'active' as const,
-    isTemplate: false,
-    requiresAPI: ['SMS Gateway', 'Email Service'],
-    owner: {
-      name: 'CustomerCare AI',
-      verified: true
-    },
-    lastUpdated: new Date(),
-    validationScore: 92.4,
-    comingSoon: true
-  }
+  status: 'active' as const,
+  isTemplate: false,
+  requiresAPI: ['Weather API', 'Calendar Integration'],
+  owner: {
+    name: 'PredictAI Corp',
+    verified: true
+  },
+  lastUpdated: new Date(),
+  validationScore: 88.9
+},
+{
+  id: '4',
+  name: 'FleetGuardian',
+  description: 'Comprehensive fleet security and monitoring solution',
+  version: '3.0.1',
+  category: 'Security',
+  capabilities: ['Real-time monitoring', 'Theft prevention', 'Driver behavior'],
+  marketplace: true,
+  price: 249, // Uses Enterprise plan pricing
+  rating: 4.9,
+  downloads: 0, // Real downloads - no purchases yet
+  performance: {
+    accuracy: 96,
+    speed: 93,
+    reliability: 98,
+    security: 99
+  },
+  status: 'active' as const,
+  isTemplate: false,
+  requiresAPI: ['GPS Tracking', 'Security Cameras'],
+  owner: {
+    name: 'SecureFleet Inc',
+    verified: true
+  },
+  lastUpdated: new Date(),
+  validationScore: 96.1,
+  comingSoon: true
+},
+{
+  id: '5',
+  name: 'MaintenanceGenie',
+  description: 'Predictive maintenance scheduling and cost optimization',
+  version: '2.2.0',
+  category: 'Maintenance',
+  capabilities: ['Predictive alerts', 'Cost optimization', 'Supplier network'],
+  marketplace: true,
+  price: 249,
+  rating: 4.6,
+  downloads: 0, // Real downloads - no purchases yet
+  performance: {
+    accuracy: 87,
+    speed: 82,
+    reliability: 89,
+    security: 91
+  },
+  status: 'active' as const,
+  isTemplate: false,
+  requiresAPI: ['Vehicle Sensors', 'Parts Database'],
+  owner: {
+    name: 'MaintenanceAI Ltd',
+    verified: true
+  },
+  lastUpdated: new Date(),
+  validationScore: 87.3,
+  comingSoon: true
+},
+{
+  id: '6',
+  name: 'CustomerConnect',
+  description: 'AI-powered customer communication and satisfaction tracking',
+  version: '1.9.5',
+  category: 'Customer Service',
+  capabilities: ['Auto-notifications', 'Satisfaction tracking', 'Support automation'],
+  marketplace: true,
+  price: 179,
+  rating: 4.8,
+  downloads: 0, // Real downloads - no purchases yet
+  performance: {
+    accuracy: 92,
+    speed: 89,
+    reliability: 95,
+    security: 88
+  },
+  status: 'active' as const,
+  isTemplate: false,
+  requiresAPI: ['SMS Gateway', 'Email Service'],
+  owner: {
+    name: 'CustomerCare AI',
+    verified: true
+  },
+  lastUpdated: new Date(),
+  validationScore: 92.4,
+  comingSoon: true
+}
 ];
 
 export default function MarketplacePage() {
@@ -287,8 +287,6 @@ export default function MarketplacePage() {
     setShowDetailsModal(true);
   };
 
-
-
   const handleBuyAgent = (agent: any) => {
     setSelectedAgent(agent);
     setShowPricingModal(true);
@@ -301,7 +299,7 @@ export default function MarketplacePage() {
     
     try {
       // Simulate purchase process
-    setShowPricingModal(false);
+      setShowPricingModal(false);
       
       // Show confirmation
       const confirmed = confirm(
@@ -543,8 +541,6 @@ export default function MarketplacePage() {
             </Button>
           </motion.div>
         )}
-
-
 
         {/* Pricing Modal */}
         {selectedAgent && (

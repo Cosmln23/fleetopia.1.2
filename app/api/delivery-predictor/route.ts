@@ -5,7 +5,11 @@ const DeliveryPredictorAPI = {
   async initialize() {
     return true;
   },
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
   async predictDelivery(request: any) {
     return {
       estimatedDeliveryTime: {
@@ -206,7 +210,11 @@ export async function POST(request: NextRequest) {
           efficiency: rec.efficiency,
           description: `Best method for ${area.toLowerCase()} areas`
         }));
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
         return NextResponse.json({
           success: true,
           data: methodRecommendations
@@ -259,7 +267,11 @@ export async function POST(request: NextRequest) {
     console.error('DeliveryPredictor API Error:', error);
     return NextResponse.json(
       { 
+<<<<<<< HEAD
       success: false,
+=======
+        success: false, 
+>>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
         error: 'Failed to process delivery prediction',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
@@ -269,11 +281,19 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
+<<<<<<< HEAD
         return NextResponse.json({
     service: 'DeliveryPredictor',
             status: 'active',
     version: '2.0.0',
           capabilities: [
+=======
+  return NextResponse.json({
+    service: 'DeliveryPredictor',
+    status: 'active',
+    version: '2.0.0',
+    capabilities: [
+>>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
       'delivery_prediction',
       'route_optimization', 
       'dynamic_pricing',
