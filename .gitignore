@@ -58,3 +58,6 @@ prisma/migrations/*/migration.sql
 
 # Build artifacts
 *.tsbuildinfo
+
+# Ignore yarn.lock
+yarn.lock
