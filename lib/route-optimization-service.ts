@@ -65,11 +65,7 @@ export class RouteOptimizationService {
   private vehicleOptimizer: VehicleSpecificOptimizer;
   private isInitialized = false;
   
-<<<<<<< HEAD
       // Storage for pending predictions
-=======
-  // Storage pentru pending predictions
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
   private pendingLearning: Map<string, {
     prediction: EnhancedOptimizationResult;
     timestamp: Date;
@@ -143,11 +139,7 @@ export class RouteOptimizationService {
       if (request.vehicleId) {
         vehicleOptimization = await this.vehicleOptimizer.optimizeForVehicle(personalizedPrediction, request.vehicleId);
         if (vehicleOptimization && vehicleOptimization.vehicleOptimized) {
-<<<<<<< HEAD
           // Combine personalized prediction with vehicle specifics
-=======
-          // Combine personalized prediction cu vehicle specifics
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
           vehicleOptimizedPrediction = {
             ...personalizedPrediction,
             distance: vehicleOptimization.distance,
@@ -159,11 +151,7 @@ export class RouteOptimizationService {
         }
       }
 
-<<<<<<< HEAD
       // Step 4: Enhance with historical learning if we have enough data
-=======
-      // Step 4: Enhance cu historical learning dacă avem date suficiente
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
       let enhancedPrediction: EnhancedOptimizationResult = {
         ...vehicleOptimizedPrediction,
         historicallyEnhanced: false
@@ -173,11 +161,7 @@ export class RouteOptimizationService {
         const historicalEnhancement = await this.routeLearner.predictBasedOnSimilarRoutes(request);
         
         if (historicalEnhancement) {
-<<<<<<< HEAD
           // Combine ML prediction with historical learning
-=======
-          // Combine ML prediction cu historical learning
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
           const combinedOptimization = (basicPrediction.optimizationFactor * 0.7) + 
                                      (historicalEnhancement.optimizationFactor * 0.3);
           const combinedConfidence = Math.min(basicPrediction.confidence, historicalEnhancement.confidence);
@@ -209,17 +193,10 @@ export class RouteOptimizationService {
         enhancedPrediction.vehicleOptimization = vehicleOptimization;
       }
 
-<<<<<<< HEAD
       // Step 6: Generate unique route ID for tracking
       enhancedPrediction.routeId = 'route_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       
       // Step 7: Store prediction for future learning
-=======
-      // Step 6: Generate unique route ID pentru tracking
-      enhancedPrediction.routeId = 'route_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-      
-      // Step 7: Store prediction pentru future learning
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
       this.pendingLearning.set(enhancedPrediction.routeId, {
         prediction: enhancedPrediction,
         timestamp: new Date()
@@ -381,11 +358,7 @@ export class RouteOptimizationService {
     });
   }
 
-<<<<<<< HEAD
       // Public getters for debugging/monitoring
-=======
-  // Public getters pentru debugging/monitoring
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
   getStats(): any {
     return {
       initialized: this.isInitialized,

@@ -138,11 +138,7 @@ export async function GET(request: NextRequest) {
     let filteredChecks: any[] = complianceData.checks;
     if (checkType !== 'all') {
       filteredChecks = complianceData.checks.filter((check: any) => check.type === checkType);
-<<<<<<< HEAD
         }
-=======
-    }
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
 
     // Mock storage since we're avoiding database operations
 
@@ -202,7 +198,6 @@ export async function POST(request: NextRequest) {
     // Mock compliance check storage
     const complianceRecord = {
       id: `comp-${Date.now()}`,
-<<<<<<< HEAD
         vehicleId,
         driverId,
         type: checkType,
@@ -212,17 +207,6 @@ export async function POST(request: NextRequest) {
         violations: checkResult.details.violations,
         checkDate: new Date(),
         automated: true
-=======
-      vehicleId,
-      driverId,
-      type: checkType,
-      provider,
-      status: checkResult.status,
-      details: checkResult.details,
-      violations: checkResult.details.violations,
-      checkDate: new Date(),
-      automated: true
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
     };
 
     return NextResponse.json({

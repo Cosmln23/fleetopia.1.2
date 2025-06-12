@@ -40,11 +40,7 @@ export function FreeMapComponent() {
     {
       id: '1',
       name: 'Truck Alpha',
-<<<<<<< HEAD
       position: [45.7489, 21.2087], // Timisoara
-=======
-      position: [45.7489, 21.2087], // Timișoara
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
       status: 'active',
       speed: 65,
       fuel: 78,
@@ -53,11 +49,7 @@ export function FreeMapComponent() {
     {
       id: '2',
       name: 'Van Beta',
-<<<<<<< HEAD
       position: [44.4268, 26.1025], // Bucharest
-=======
-      position: [44.4268, 26.1025], // București
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
       status: 'idle',
       speed: 0,
       fuel: 45,
@@ -75,11 +67,7 @@ export function FreeMapComponent() {
     {
       id: '4',
       name: 'Van Delta',
-<<<<<<< HEAD
       position: [44.1598, 28.6348], // Constanta
-=======
-      position: [44.1598, 28.6348], // Constanța
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
       status: 'maintenance',
       speed: 0,
       fuel: 23,
@@ -250,43 +238,25 @@ export function FreeMapComponent() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 bg-green-900/20 border border-green-700/50 rounded-lg">
               <h3 className="font-medium text-green-400 mb-2">OpenStreetMap</h3>
-<<<<<<< HEAD
               <p className="text-sm text-gray-300 mb-3">Free maps, open-source</p>
               <Button variant="outline" size="sm" className="text-green-400 border-green-700">
                 ✅ In use
-=======
-              <p className="text-sm text-gray-300 mb-3">Hărți gratuite, open-source</p>
-              <Button variant="outline" size="sm" className="text-green-400 border-green-700">
-                ✅ În folosință
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
               </Button>
             </div>
             
             <div className="p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
               <h3 className="font-medium text-blue-400 mb-2">Nominatim Geocoding</h3>
-<<<<<<< HEAD
               <p className="text-sm text-gray-300 mb-3">Free geocoding for addresses</p>
               <Button variant="outline" size="sm" className="text-blue-400 border-blue-700">
                 Activate
-=======
-              <p className="text-sm text-gray-300 mb-3">Geocodare gratuită pentru adrese</p>
-              <Button variant="outline" size="sm" className="text-blue-400 border-blue-700">
-                Activează
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
               </Button>
             </div>
             
             <div className="p-4 bg-purple-900/20 border border-purple-700/50 rounded-lg">
               <h3 className="font-medium text-purple-400 mb-2">OSRM Routing</h3>
-<<<<<<< HEAD
               <p className="text-sm text-gray-300 mb-3">Free route calculation</p>
               <Button variant="outline" size="sm" className="text-purple-400 border-purple-700">
                 Activate
-=======
-              <p className="text-sm text-gray-300 mb-3">Calculare rute gratuite</p>
-              <Button variant="outline" size="sm" className="text-purple-400 border-purple-700">
-                Activează
->>>>>>> 84f9b77d7b24a91b5cd19576f3bc753088b737a8
               </Button>
             </div>
           </div>
