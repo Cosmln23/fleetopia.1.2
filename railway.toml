@@ -10,6 +10,4 @@ NIXPACKS_NO_CACHE = "true"
 NPM_CONFIG_PRODUCTION = "false"
 
 [deploy]
-startCommand = "npm start"
-restartPolicyType = "on-failure"
-restartPolicyMaxRetries = 3 
+startCommand = "npm start" 
