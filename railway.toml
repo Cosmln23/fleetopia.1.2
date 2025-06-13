@@ -1,0 +1,15 @@
+[build]
+builder = "nixpacks"
+
+[build.nixpacksConfig]
+packages = ["nodejs-18_x", "npm-9_x"]
+
+[build.nixpacksConfig.envs]
+NODE_ENV = "production"
+NIXPACKS_NO_CACHE = "true"
+NPM_CONFIG_PRODUCTION = "false"
+
+[deploy]
+startCommand = "npm start"
+restartPolicyType = "on-failure"
+restartPolicyMaxRetries = 3 

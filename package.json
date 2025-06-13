@@ -10,6 +10,10 @@
     "test:predictive-ai": "node test-predictive-fuel-ai.js",
     "test:vehicle-optimization": "node test-vehicle-optimization.js"
   },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
   "dependencies": {
     "@prisma/client": "^5.10.0",
     "@radix-ui/react-alert-dialog": "^1.0.5",

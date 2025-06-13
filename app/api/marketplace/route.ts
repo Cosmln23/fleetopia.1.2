@@ -1,4 +1,3 @@
-
 // Fleetopia.co - AI Marketplace API
 // Marketplace Contributions and Ecosystem Management for Transport Paradise
 
@@ -87,7 +86,6 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         name: true,
-        type: true,
         treeLayer: true
       }
     });

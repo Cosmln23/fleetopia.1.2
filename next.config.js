@@ -15,8 +15,27 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: { unoptimized: true },
-  webpack: (config) => {
-    config.resolve.alias['@'] = path.resolve(__dirname);
+  webpack: (config, { isServer }) => {
+    // Configure absolute path aliases for Railway compatibility
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname),
+      '@/components': path.resolve(__dirname, 'components'),
+      '@/lib': path.resolve(__dirname, 'lib'),
+      '@/app': path.resolve(__dirname, 'app'),
+      '@/pages': path.resolve(__dirname, 'pages'),
+      '@/styles': path.resolve(__dirname, 'styles'),
+      '@/hooks': path.resolve(__dirname, 'hooks'),
+      '@/utils': path.resolve(__dirname, 'utils'),
+    };
+
+    // Ensure absolute paths are resolved properly
+    config.resolve.modules = [
+      path.resolve(__dirname),
+      path.resolve(__dirname, 'node_modules'),
+      'node_modules'
+    ];
+
     return config;
   },
 };

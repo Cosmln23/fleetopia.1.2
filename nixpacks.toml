@@ -1,0 +1,22 @@
+[variables]
+NODE_ENV = "production"
+NIXPACKS_NO_CACHE = "true"
+NPM_CONFIG_PRODUCTION = "false"
+
+[phases.setup]
+dependsOn = []
+
+[phases.install]
+dependsOn = ["setup"]
+cmds = [
+  "npm ci --include=dev"
+]
+
+[phases.build]
+dependsOn = ["install"]
+cmds = [
+  "npm run build"
+]
+
+[start]
+cmd = "npm start" 
