@@ -1,0 +1,15 @@
+# Force Railway to use Nixpacks instead of Dockerfile
+Dockerfile
+.dockerignore
+
+# Development files
+*.md
+!README.md
+.env*.local
+.vscode/
+.idea/
+
+# Build artifacts
+.next/
+node_modules/
+coverage/ 
